@@ -42,8 +42,7 @@ public class Referee extends AbstractReferee {
         } else {
             gameManager.setMaxTurns(9 * 9);
         }
-        
-        validActions = getValidActions();
+
     }
 
     private void drawBackground() {
@@ -114,13 +113,7 @@ public class Referee extends AbstractReferee {
     }
 
     private void sendPlayerInputs() {
-        List<String> board = state.boardInput();
-        for (Player p : gameManager.getActivePlayers()) {
-            p.setPawns(state.getPawnsCnt(p.getIndex()));
-            board.forEach(p::sendInputLine);
-            state.pawnInput(p.getIndex()).forEach(p::sendInputLine);
-            p.execute();
-        }
+
     }
 
 
@@ -130,13 +123,6 @@ public class Referee extends AbstractReferee {
         endGame();
     }
 
-    private List<Action> getValidActions() {
-        List<Action> validActions;
-        validActions = state.getValidActions();
-
-        Collections.shuffle(validActions, random);
-        return validActions;
-    }
 
     @Override
     public void gameTurn(int turn) {

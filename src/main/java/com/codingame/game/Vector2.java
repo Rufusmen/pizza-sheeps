@@ -1,8 +1,10 @@
 package com.codingame.game;
 
+import static java.lang.Math.sqrt;
+
 public class Vector2 implements Cloneable{
-    private int x;
-    private int y;
+    private double x;
+    private double y;
 
     public Vector2() {
         this.x = -1;
@@ -18,18 +20,24 @@ public class Vector2 implements Cloneable{
         }
     }
 
-    public Vector2(int x, int y) {
+    public Vector2(double x, double y) {
         this.x = x;
         this.y = y;
     }
-    public int getX() { return this.x; }
-    public int getY() { return this.y; }
-    public void setX(int x) { this.x = x; }
-    public void setY(int y) { this.y = y; }
+    public double getX() { return this.x; }
+    public double getY() { return this.y; }
+    public void setX(double x) { this.x = x; }
+    public void setY(double y) { this.y = y; }
 
-    public void add(int x, int y) { this.x += x; this.y += y;}
+    public void normalize(){
+        double length = sqrt(x*x+y*y);
+        x = x/length;
+        y = y/length;
+    }
+
+    public void add(double x, double y) { this.x += x; this.y += y;}
     public void add(Vector2 v) { this.x += v.x; this.y += v.y;}
-    public void sub(int x, int y) { this.x -= x; this.y -= y;}
+    public void sub(double x, double y) { this.x -= x; this.y -= y;}
     public void sub(Vector2 v) { this.x -= v.x; this.y -= v.y;}
     public void abs() {this.x = Math.abs(x); this.y = Math.abs(y);}
 }

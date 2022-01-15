@@ -1,37 +1,39 @@
 package com.codingame.game;
 
 public class Action {
-    public final int pawn;
-    public final int direction;
-    public final int range;
+
+    public final boolean isDog;
+    public final int id;
+    public final Vector2 direction;
     public Player player;
     public final ActionType type;
-    
-    public Action(Player player,ActionType type, int pawn, int col, int range) {
+
+    public Action(Player player, ActionType type, int id, Vector2 col, boolean isDog) {
         this.player = player;
-        this.pawn = pawn;
+        this.id = id;
         this.direction = col;
-        this.range = range;
-        this.type=type;
+        this.type = type;
+        this.isDog = isDog;
     }
-    
+
     @Override
     public String toString() {
-        return pawn + " " + direction;
+        return id + " " + direction;
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Action) {
             Action other = (Action) obj;
-            return direction == other.direction && pawn == other.pawn;
+            return direction == other.direction && id == other.id;
         } else {
             return false;
         }
     }
 
-    public enum ActionType{
+    public enum ActionType {
         MOVE,
-        SHOOT
+        SHEAR,
+        BARK
     }
 }
