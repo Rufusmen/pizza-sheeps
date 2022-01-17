@@ -1,6 +1,10 @@
 package com.codingame.game;
 
-import com.codingame.game.Action.ActionType;
+import com.codingame.game.actions.AbstractAction;
+import com.codingame.game.actions.BarkAction;
+import com.codingame.game.actions.MoveAction;
+import com.codingame.game.actions.ShearAction;
+import com.codingame.game.actions.TransferWoolAction;
 import com.codingame.gameengine.core.AbstractMultiplayerPlayer;
 import com.codingame.gameengine.module.entities.Group;
 import java.util.ArrayList;
@@ -20,15 +24,27 @@ public class Player extends AbstractMultiplayerPlayer {
         this.pawns = pawns;
     }
 
-    public List<Action> getActions() throws TimeoutException, NumberFormatException {
-        List<Action> actions = new ArrayList<>();
+    public List<AbstractAction> getActions() throws TimeoutException, NumberFormatException {
+        List<AbstractAction> actions = new ArrayList<>();
         for (String output : getOutputs()
         ) {
             String[] outputs = output.split(" ");
-            ActionType type = ActionType.valueOf(outputs[0]);
-            actions.add(new Action(this, type, Integer.parseInt(outputs[2]),
-                type == ActionType.MOVE ? new Vector2(Double.parseDouble(outputs[3]), Double.parseDouble(outputs[4])) : null,
-                type == ActionType.MOVE && (Integer.parseInt(outputs[1]) != 1)));
+            switch (outputs[0]) {
+                case "MOVE":
+                    actions.add(new MoveAction(this, Integer.parseInt(outputs[2]),
+                        new Vector2(Double.parseDouble(outputs[3]), Double.parseDouble(outputs[4])), Integer.parseInt(outputs[1]) != 1));
+                    break;
+                case "BARK":
+                    actions.add(new BarkAction(this, Integer.parseInt(outputs[1])));
+                    break;
+                case "SHEAR":
+                    actions.add(new ShearAction(this, Integer.parseInt(outputs[2]), Integer.parseInt(outputs[3]),
+                        Integer.parseInt(outputs[1]) == 1));
+                    break;
+                case "TRANSFER_WOOL":
+                    actions.add(new TransferWoolAction(this, Integer.parseInt(outputs[2]), Integer.parseInt(outputs[1]) == 1,
+                        Integer.parseInt(outputs[3])));
+            }
         }
         return actions;
     }

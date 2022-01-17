@@ -1,7 +1,7 @@
 package com.codingame.game;
 
+import com.codingame.game.actions.AbstractAction;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -21,28 +21,31 @@ public class Referee extends AbstractReferee {
     @Inject private Provider<GameState> gameStateProvider;
 
     private GameState state;
-    private List<Action> validActions;
+    private List<AbstractAction> validActions;
     private Random random;
     
     @Override
     public void init() {
         random = new Random(gameManager.getSeed());
         state = gameStateProvider.get();
-        state.init();
+        gameManager.setMaxTurns(state.init(random));
         drawBackground();
         drawHud();
         drawGrids();
 
 
 
-        gameManager.setFrameDuration(600);
+        gameManager.setFrameDuration(100);
 
-        if (gameManager.getLeagueLevel() == 1) {
-            gameManager.setMaxTurns(9);
-        } else {
-            gameManager.setMaxTurns(9 * 9);
+        sendInitInputs();
+
+    }
+
+    private void sendInitInputs() {
+        for (Player p : gameManager.getActivePlayers()) {
+            p.setPawns(1);
+            p.sendInputLine(state.getConsts());
         }
-
     }
 
     private void drawBackground() {
@@ -113,7 +116,15 @@ public class Referee extends AbstractReferee {
     }
 
     private void sendPlayerInputs() {
-
+        List<String> sheeps = state.getSheepsInput();
+        List<String> sheds = state.getShedsInput();
+        for (Player p : gameManager.getActivePlayers()) {
+            sheeps.forEach(p::sendInputLine);
+            state.getShepherdsInput(p).forEach(p::sendInputLine);
+            state.getDogsInput(p).forEach(p::sendInputLine);
+            sheds.forEach(p::sendInputLine);
+            p.execute();
+        }
     }
 
 
@@ -131,7 +142,7 @@ public class Referee extends AbstractReferee {
 
         // Read inputs
         state.draw();
-        List<Action> actions = new ArrayList<>();
+        List<AbstractAction> actions = new ArrayList<>();
         for (Player player : gameManager.getActivePlayers()) {
             try {
                 actions.addAll(player.getActions());
@@ -147,6 +158,7 @@ public class Referee extends AbstractReferee {
             }
         }
         state.resolveActions(actions);
+        state.onTurnEnd();
     }
 
     private void endGame() {

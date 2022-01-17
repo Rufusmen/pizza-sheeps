@@ -6,6 +6,8 @@ import com.codingame.gameengine.module.entities.GraphicEntityModule;
 import com.codingame.gameengine.module.entities.Group;
 import com.codingame.gameengine.module.entities.Rectangle;
 import com.google.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Board {
 
@@ -15,13 +17,17 @@ public class Board {
     public Cell[][] cells;
     public int size;
 
+    private List<Shed> sheds;
+
+    private Group entity;
+
     private int origX;
     private int origY;
     private int cellSize;
 
 
-    public void init(){
-        size=10;
+    public void init(int size){
+        this.size=size;
         cells = new Cell[size][size];
         for (int i = 0; i < size; ++i) {
             for (int j = 0; j < size; ++j) {
@@ -29,15 +35,17 @@ public class Board {
             }
         }
 
-        cells[0][0] = new Shed();
-        cells[9][9] = new Shed();
+        sheds = new ArrayList<>();
+        sheds.add(new Shed(0,0));
+        sheds.add(new Shed(9,9));
+        sheds.forEach(s->cells[s.x][s.y]=s);
     }
 
     public void drawInit(int origX, int origY, int cellSize, int lineColor) {
         this.origX = origX;
         this.origY = origY;
         this.cellSize = cellSize;
-        Group entity = graphicEntityModule.createGroup();
+        entity = graphicEntityModule.createGroup();
 
         for (int i = 0; i < size; ++i) {
             for (int j = 0; j < size; ++j) {
@@ -76,4 +84,17 @@ public class Board {
         }
     }
 
+    public Shed getShed(Vector2 v){
+        if(cells[(int) v.getX()][(int) v.getY()] instanceof Shed){
+            return (Shed) cells[(int) v.getX()][(int) v.getY()];
+        }
+        return null;
+    }
+
+    public List<String> getShedsInput() {
+        List<String> res = new ArrayList<>();
+        res.add(Integer.toString(sheds.size()));
+        sheds.forEach(s -> res.add(s.toString()));
+        return res;
+    }
 }
