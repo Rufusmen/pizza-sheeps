@@ -28,18 +28,18 @@ public class Vector2 implements Cloneable {
         return String.format("%f %f",x,y);
     }
 
-    public void checkInBound(double bound){
+    public void checkInBound(double boundX,double boundY){
         if(x < 0){
             x = 1e-6;
         }
         if(y < 0){
             y = 1e-6;
         }
-        if(x > bound){
-            x = bound - 1e-6;
+        if(x > boundX){
+            x = boundX - 1e-6;
         }
-        if(y > bound){
-            y = bound - 1e-6;
+        if(y > boundY){
+            y = boundY - 1e-6;
         }
     }
 

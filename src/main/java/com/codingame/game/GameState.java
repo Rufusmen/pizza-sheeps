@@ -41,10 +41,10 @@ public class GameState {
     public void drawInit(int i, int i1, int bigCellSize, int i2, int i3) {
         board.drawInit(i, i1, bigCellSize, i2);
         entitiesGroup = graphicEntityModule.createGroup().setZIndex(1);
-        sheeps.forEach(s -> entitiesGroup.add(s.drawInit(graphicEntityModule.createCircle(), i, i1, bigCellSize, constsSettings.mapSize)));
-        dogs.forEach(e -> entitiesGroup.add(e.drawInit(graphicEntityModule.createCircle(), i, i1, bigCellSize, constsSettings.mapSize)));
+        sheeps.forEach(s -> entitiesGroup.add(s.drawInit(graphicEntityModule.createSprite(), i, i1, bigCellSize, constsSettings.mapSizeX,constsSettings.mapSizeY)));
+        dogs.forEach(e -> entitiesGroup.add(e.drawInit(graphicEntityModule.createSprite(), i, i1, bigCellSize, constsSettings.mapSizeX,constsSettings.mapSizeY)));
         shepherds.forEach(
-            e -> entitiesGroup.add(e.drawInit(graphicEntityModule.createCircle(), i, i1, bigCellSize, constsSettings.mapSize)));
+            e -> entitiesGroup.add(e.drawInit(graphicEntityModule.createSprite(), i, i1, bigCellSize, constsSettings.mapSizeX,constsSettings.mapSizeY)));
         sheeps.forEach(Entity::draw);
         dogs.forEach(Entity::draw);
         shepherds.forEach(Entity::draw);
@@ -53,15 +53,20 @@ public class GameState {
     public int init(Random random) {
         this.random = random;
         constsSettings = new ConstsSettings();
-        board.init(constsSettings.mapSize);
-        sheeps.add(new Sheep(new Vector2(3.5, 3.5)));
-        sheeps.add(new Sheep(new Vector2(4, 4)));
-        sheeps.add(new Sheep(new Vector2(5, 5)));
+        board.init(constsSettings.mapSizeX,constsSettings.mapSizeY);
+        generateSheep();
         shepherds.add(new Shepherd(new Vector2(1, 1), 0));
         shepherds.add(new Shepherd(new Vector2(8, 8), 1));
         dogs.add(new Dog(new Vector2(2, 2), 0));
         dogs.add(new Dog(new Vector2(7, 7), 1));
         return constsSettings.turns;
+    }
+
+    private void generateSheep(){
+        int sheepNo = random.nextInt(constsSettings.maxSheep-constsSettings.minSheep)+ constsSettings.minSheep;
+        while (sheepNo-->0){
+            sheeps.add(new Sheep(new Vector2(random.nextDouble()*constsSettings.mapSizeX,random.nextDouble()*constsSettings.mapSizeY),constsSettings.initialSheepWool));
+        }
     }
 
     public void draw() {
@@ -158,11 +163,20 @@ public class GameState {
             if (sheepsDirections.get(i) != null) {
                 Sheep sheep = sheeps.get(i);
                 Vector2 movement = sheepsDirections.get(i).addRand(random);
-                sheep.lastMove = movement;
                 sheep.move(movement,
                     sheep.isScared ? constsSettings.sheepSpeed3 : (inDanger[i] ? constsSettings.sheepSpeed2 : constsSettings.sheepSpeed1));
             }
         }
+        for (Shepherd s : shepherds) {
+            if (s.shearing == -1)
+                continue;
+            Sheep sh = sheeps.get(s.shearing);
+            if (sh.wool > 0 && s.wool < constsSettings.shepardMaxWool) {
+                sh.wool--;
+                s.wool++;
+            }
+        }
+
     }
 
     private Vector2 randomMove(Vector2 position, Vector2 lastMove) {
@@ -170,10 +184,10 @@ public class GameState {
             return lastMove;
         }
         Vector2 randomV = new Vector2(random.nextDouble() * 2.0 - 1.0, random.nextDouble() * 2.0 - 1.0);
-        if (position.getY() <= 1.0 && randomV.getY() < 0 || position.getY() >= constsSettings.mapSize && randomV.getY() > 0) {
+        if (position.getY() <= 1.0 && randomV.getY() < 0 || position.getY() >= constsSettings.mapSizeY && randomV.getY() > 0) {
             randomV.negateY();
         }
-        if (position.getX() <= 1.0 && randomV.getX() < 0 || position.getX() >= constsSettings.mapSize && randomV.getX() > 0) {
+        if (position.getX() <= 1.0 && randomV.getX() < 0 || position.getX() >= constsSettings.mapSizeX && randomV.getX() > 0) {
             randomV.negateX();
         }
         return randomV;
@@ -206,14 +220,14 @@ public class GameState {
         if (shepherd.getOwner() != action.player.getIndex()) {
             return;
         }
-        Sheep sheep = sheeps.get(action.sheepId);
+        Sheep sheep = sheeps.get(action.sheepId-1);
         if (action.isStart) {
             if (!sheep.isSheared && sheep.getPosition().inRadius(shepherd.getPosition(), constsSettings.entityRadius * 2.0)) {
                 sheep.isSheared = true;
-                shepherd.shearing = action.sheepId;
+                shepherd.shearing = action.sheepId-1;
             }
         } else {
-            if (sheep.isSheared && shepherd.shearing == action.sheepId) {
+            if (sheep.isSheared && shepherd.shearing == action.sheepId-1) {
                 shepherd.shearing = -1;
                 sheep.isSheared = false;
             }
@@ -240,7 +254,7 @@ public class GameState {
         }
     }
 
-    public Pair<Integer, Integer> getScore() {
-        return null;
+    public int getScore(int id) {
+        return board.getScore(id);
     }
 }

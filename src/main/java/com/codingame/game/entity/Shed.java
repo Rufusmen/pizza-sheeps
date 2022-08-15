@@ -5,7 +5,6 @@ import com.codingame.game.CellType;
 
 public class Shed extends Cell {
 
-    public int owner;
     public int wool;
     public int dogs1;
     public int dogs2;
@@ -13,9 +12,10 @@ public class Shed extends Cell {
     public int x;
     public int y;
 
-    public Shed(int x, int y) {
+    public Shed(int x, int y,int owner) {
         this.x = x;
         this.y = y;
+        this.owner = owner;
         type = CellType.SHED;
     }
 

@@ -13,8 +13,12 @@ public class Dog extends Entity {
 
     @Override
     public void draw() {
-        circle.setFillColor(0xff0000);
         updatePosition();
+    }
+
+    @Override
+    protected void setSprite() {
+        sprite.setImage(owner == 0 ? "dog1.png" : "dog2.png");
     }
 
     public void onTurnEnd(){

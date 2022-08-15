@@ -4,7 +4,7 @@ import com.codingame.game.Vector2;
 
 public class Shepherd extends Entity {
 
-    public int shearing;
+    public int shearing = -1;
     public int wool;
 
     public Shepherd(Vector2 position, int owner) {
@@ -14,11 +14,15 @@ public class Shepherd extends Entity {
 
     @Override
     public void draw() {
-        circle.setFillColor(0x00ff00);
         updatePosition();
     }
 
+    @Override
+    protected void setSprite() {
+        sprite.setImage(owner == 0 ? "shepard1.png" : "shepard2.png");
+    }
+
     public String toStringFull() {
-        return String.format("%s %d %d", this, wool, shearing);
+        return String.format("%s %d %d", this, wool, shearing + 1);
     }
 }

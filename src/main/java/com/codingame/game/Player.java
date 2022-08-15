@@ -24,7 +24,7 @@ public class Player extends AbstractMultiplayerPlayer {
         this.pawns = pawns;
     }
 
-    public List<AbstractAction> getActions() throws TimeoutException, NumberFormatException {
+    public List<AbstractAction> getActions() throws TimeoutException, NumberFormatException, InvalidAction {
         List<AbstractAction> actions = new ArrayList<>();
         for (String output : getOutputs()
         ) {
@@ -44,6 +44,9 @@ public class Player extends AbstractMultiplayerPlayer {
                 case "TRANSFER_WOOL":
                     actions.add(new TransferWoolAction(this, Integer.parseInt(outputs[2]), Integer.parseInt(outputs[1]) == 1,
                         Integer.parseInt(outputs[3])));
+                    break;
+                default:
+                    throw new InvalidAction("invalid action");
             }
         }
         return actions;

@@ -67,51 +67,49 @@ public class Referee extends AbstractReferee {
     }
 
     private void drawGrids() {
-        int bigCellSize = 100;
-        int bigOrigX = (int) Math.round(1920 / 2 - bigCellSize);
-        int bigOrigY = (int) Math.round(1080 / 2 - bigCellSize);
-        state.drawInit(5, 5, bigCellSize, 0, 0xf9b700);
+        int cellSize = 100;
+        state.drawInit(5, 5, cellSize, 0, 0xf9b700);
     }
     
     private void drawHud() {
         for (Player player : gameManager.getPlayers()) {
-            int x = player.getIndex() == 0 ? 280 : 1920 - 280;
-            int y = 220;
+            int x = 1920 - 280;
+            int y = player.getIndex() == 0 ? 520 : 1080-220;
 
             graphicEntityModule
-                    .createRectangle()
-                    .setWidth(140)
-                    .setHeight(140)
-                    .setX(x - 70)
-                    .setY(y - 70)
-                    .setLineWidth(0)
-                    .setFillColor(player.getColorToken());
+                .createRectangle()
+                .setWidth(140)
+                .setHeight(140)
+                .setX(x - 70)
+                .setY(y - 70)
+                .setLineWidth(0)
+                .setFillColor(player.getColorToken());
 
             graphicEntityModule
-                    .createRectangle()
-                    .setWidth(120)
-                    .setHeight(120)
-                    .setX(x - 60)
-                    .setY(y - 60)
-                    .setLineWidth(0)
-                    .setFillColor(0xffffff);
+                .createRectangle()
+                .setWidth(120)
+                .setHeight(120)
+                .setX(x - 60)
+                .setY(y - 60)
+                .setLineWidth(0)
+                .setFillColor(0xffffff);
 
             Text text = graphicEntityModule.createText(player.getNicknameToken())
-                    .setX(x)
-                    .setY(y + 120)
-                    .setZIndex(20)
-                    .setFontSize(40)
-                    .setFillColor(0xffffff)
-                    .setAnchor(0.5);
+                .setX(x)
+                .setY(y + 120)
+                .setZIndex(20)
+                .setFontSize(40)
+                .setFillColor(0)
+                .setAnchor(0.5);
 
             Sprite avatar = graphicEntityModule.createSprite()
-                    .setX(x)
-                    .setY(y)
-                    .setZIndex(20)
-                    .setImage(player.getAvatarToken())
-                    .setAnchor(0.5)
-                    .setBaseHeight(116)
-                    .setBaseWidth(116);
+                .setX(x)
+                .setY(y)
+                .setZIndex(20)
+                .setImage(player.getAvatarToken())
+                .setAnchor(0.5)
+                .setBaseHeight(116)
+                .setBaseWidth(116);
 
             player.hud = graphicEntityModule.createGroup(text, avatar);
         }
@@ -132,14 +130,11 @@ public class Referee extends AbstractReferee {
 
     private void setWinner(Player player) {
         gameManager.addToGameSummary(GameManager.formatSuccessMessage(player.getNicknameToken() + " won!"));
-        player.setScore(10);
-        endGame();
     }
 
     private void updateScore(){
-        Pair<Integer,Integer> score = state.getScore();
         for (Player p : gameManager.getActivePlayers()) {
-
+            p.setScore(state.getScore(p.getIndex()));
         }
     }
 
@@ -159,9 +154,14 @@ public class Referee extends AbstractReferee {
                 player.deactivate("Wrong output!");
                 player.setScore(-1);
                 endGame();
-            } catch (TimeoutException e) {
+            } catch (TimeoutException  e ) {
                 gameManager.addToGameSummary(GameManager.formatErrorMessage(player.getNicknameToken() + " timeout!"));
                 player.deactivate(player.getNicknameToken() + " timeout!");
+                player.setScore(-1);
+                endGame();
+            } catch (InvalidAction e){
+                gameManager.addToGameSummary(GameManager.formatErrorMessage(player.getNicknameToken() + " invalid action!"));
+                player.deactivate(player.getNicknameToken() + " invalid action!");
                 player.setScore(-1);
                 endGame();
             }
@@ -170,16 +170,23 @@ public class Referee extends AbstractReferee {
         state.onTurnEnd();
     }
 
+    @Override
+    public void onEnd(){
+        endGame();
+    }
+
     private void endGame() {
         gameManager.endGame();
-
+        updateScore();
         Player p0 = gameManager.getPlayers().get(0);
         Player p1 = gameManager.getPlayers().get(1);
         if (p0.getScore() > p1.getScore()) {
             p1.hud.setAlpha(0.3);
+            setWinner(p0);
         }
         if (p0.getScore() < p1.getScore()) {
             p0.hud.setAlpha(0.3);
+            setWinner(p1);
         }
     }
 }

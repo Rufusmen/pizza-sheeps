@@ -110,7 +110,6 @@ public class Player2 {
             while (shedsCnt-->0){
                 sheds.add(new Shed(in.nextInt(), in.nextInt(),in.nextInt(), in.nextInt(),in.nextInt(), in.nextInt()));
             }
-            System.err.println("shed");
 
             System.out.printf("MOVE 1 1 %d %d\n", random.nextInt(), random.nextInt());
         }
