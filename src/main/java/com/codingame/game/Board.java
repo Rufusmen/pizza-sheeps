@@ -2,6 +2,7 @@ package com.codingame.game;
 
 import static com.codingame.game.Util.convert;
 
+import com.codingame.game.entity.Shed;
 import com.codingame.gameengine.module.entities.GraphicEntityModule;
 import com.codingame.gameengine.module.entities.Group;
 import com.codingame.gameengine.module.entities.Rectangle;
@@ -56,16 +57,10 @@ public class Board {
                     .setHeight(cellSize)
                     .setLineWidth(5)
                     .setLineColor(lineColor);
-                switch (cells[i][j].type){
-                    case EMPTY:
-                        rectangle.setFillColor(0xffffff);
-                        break;
-                    case WALL:
-                        rectangle.setFillColor(0xffff);
-                        break;
-                    case SHED:
-                        rectangle.setFillColor(0x00ffff);
-                        break;
+                switch (cells[i][j].type) {
+                    case EMPTY -> rectangle.setFillColor(0xffffff);
+                    case WALL -> rectangle.setFillColor(0xffff);
+                    case SHED -> rectangle.setFillColor(0x00ffff);
                 }
                 cells[i][j].rectangle = rectangle;
                 entity.add(rectangle);

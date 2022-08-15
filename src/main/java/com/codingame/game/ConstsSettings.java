@@ -7,13 +7,14 @@ public class ConstsSettings {
     public double sheepSpeed1 = 0.2000;
     public double sheepSpeed2 = 0.3000;
     public double sheepSpeed3 = 0.5000;
+    public int sameDirectionProbability = 60;
     public double dangerRadius = 2;
     public double barkRadius = 1;
     public double entityRadius = 1;
     public int barkCoolDown = 5;
     public int shepardMaxWool = 10;
     public int initialSheepWool = 10;
-    public int mapSize = 10;
+    public int mapSize = 15;
     public int calmCoolDown = 3;
     public int turns = 100;
 

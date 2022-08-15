@@ -1,4 +1,7 @@
-package com.codingame.game;
+package com.codingame.game.entity;
+
+import com.codingame.game.Cell;
+import com.codingame.game.CellType;
 
 public class Shed extends Cell {
 

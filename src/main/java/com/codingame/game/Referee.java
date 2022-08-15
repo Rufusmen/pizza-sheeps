@@ -14,6 +14,8 @@ import com.codingame.gameengine.module.entities.Sprite;
 import com.codingame.gameengine.module.entities.Text;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import org.apache.commons.lang3.tuple.Pair;
+
 
 public class Referee extends AbstractReferee {
     @Inject private MultiplayerGameManager<Player> gameManager;
@@ -132,6 +134,13 @@ public class Referee extends AbstractReferee {
         gameManager.addToGameSummary(GameManager.formatSuccessMessage(player.getNicknameToken() + " won!"));
         player.setScore(10);
         endGame();
+    }
+
+    private void updateScore(){
+        Pair<Integer,Integer> score = state.getScore();
+        for (Player p : gameManager.getActivePlayers()) {
+
+        }
     }
 
 

@@ -6,6 +6,7 @@ public class Sheep extends Entity{
     public int wool;
     public boolean isSheared;
     public boolean isScared;
+    public Vector2 lastMove = new Vector2(0,0);
 
     public Sheep(Vector2 position) {
         super(position);

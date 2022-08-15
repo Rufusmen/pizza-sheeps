@@ -9,6 +9,7 @@ import com.codingame.game.actions.ShearAction;
 import com.codingame.game.actions.TransferWoolAction;
 import com.codingame.game.entity.Dog;
 import com.codingame.game.entity.Entity;
+import com.codingame.game.entity.Shed;
 import com.codingame.game.entity.Sheep;
 import com.codingame.game.entity.Shepherd;
 import com.codingame.gameengine.module.entities.GraphicEntityModule;
@@ -18,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class GameState {
 
@@ -40,9 +41,10 @@ public class GameState {
     public void drawInit(int i, int i1, int bigCellSize, int i2, int i3) {
         board.drawInit(i, i1, bigCellSize, i2);
         entitiesGroup = graphicEntityModule.createGroup().setZIndex(1);
-        sheeps.forEach(s -> entitiesGroup.add(s.drawInit(graphicEntityModule.createCircle(), i, i1, bigCellSize,constsSettings.mapSize)));
-        dogs.forEach(e -> entitiesGroup.add(e.drawInit(graphicEntityModule.createCircle(), i, i1, bigCellSize,constsSettings.mapSize)));
-        shepherds.forEach(e -> entitiesGroup.add(e.drawInit(graphicEntityModule.createCircle(), i, i1, bigCellSize,constsSettings.mapSize)));
+        sheeps.forEach(s -> entitiesGroup.add(s.drawInit(graphicEntityModule.createCircle(), i, i1, bigCellSize, constsSettings.mapSize)));
+        dogs.forEach(e -> entitiesGroup.add(e.drawInit(graphicEntityModule.createCircle(), i, i1, bigCellSize, constsSettings.mapSize)));
+        shepherds.forEach(
+            e -> entitiesGroup.add(e.drawInit(graphicEntityModule.createCircle(), i, i1, bigCellSize, constsSettings.mapSize)));
         sheeps.forEach(Entity::draw);
         dogs.forEach(Entity::draw);
         shepherds.forEach(Entity::draw);
@@ -82,7 +84,7 @@ public class GameState {
 
     public List<String> getDogsInput(Player p) {
         List<String> res = new ArrayList<>();
-        Map<Integer,List<Dog>> split = dogs.stream().collect(Collectors.groupingBy(Entity::getOwner));
+        Map<Integer, List<Dog>> split = dogs.stream().collect(Collectors.groupingBy(Entity::getOwner));
         res.add(Integer.toString(split.get(p.getIndex()).size()));
         split.get(p.getIndex()).forEach(d -> res.add(d.toString()));
         res.add(Integer.toString(split.get(otherId(p.getIndex())).size()));
@@ -90,13 +92,13 @@ public class GameState {
         return res;
     }
 
-    public List<String> getShedsInput(){
+    public List<String> getShedsInput() {
         return board.getShedsInput();
     }
 
-    public List<String> getShepherdsInput(Player p){
+    public List<String> getShepherdsInput(Player p) {
         List<String> res = new ArrayList<>();
-        Map<Integer,List<Shepherd>> split = shepherds.stream().collect(Collectors.groupingBy(Entity::getOwner));
+        Map<Integer, List<Shepherd>> split = shepherds.stream().collect(Collectors.groupingBy(Entity::getOwner));
         res.add(Integer.toString(split.get(p.getIndex()).size()));
         split.get(p.getIndex()).forEach(s -> res.add(s.toStringFull()));
         res.add(Integer.toString(split.get(otherId(p.getIndex())).size()));
@@ -149,19 +151,24 @@ public class GameState {
                 }
             }
             if (!added) {
-                sheepsDirections.add(randomMove(sheep.getPosition()));
+                sheepsDirections.add(randomMove(sheep.getPosition(), sheep.lastMove));
             }
         }
         for (int i = 0; i < sheeps.size(); i++) {
             if (sheepsDirections.get(i) != null) {
                 Sheep sheep = sheeps.get(i);
-                sheep.move(sheepsDirections.get(i).addRand(random),
+                Vector2 movement = sheepsDirections.get(i).addRand(random);
+                sheep.lastMove = movement;
+                sheep.move(movement,
                     sheep.isScared ? constsSettings.sheepSpeed3 : (inDanger[i] ? constsSettings.sheepSpeed2 : constsSettings.sheepSpeed1));
             }
         }
     }
 
-    private Vector2 randomMove(Vector2 position) {
+    private Vector2 randomMove(Vector2 position, Vector2 lastMove) {
+        if (random.nextInt(100) < constsSettings.sameDirectionProbability) {
+            return lastMove;
+        }
         Vector2 randomV = new Vector2(random.nextDouble() * 2.0 - 1.0, random.nextDouble() * 2.0 - 1.0);
         if (position.getY() <= 1.0 && randomV.getY() < 0 || position.getY() >= constsSettings.mapSize && randomV.getY() > 0) {
             randomV.negateY();
@@ -231,5 +238,9 @@ public class GameState {
             shed.wool -= amount;
             shepherd.wool += amount;
         }
+    }
+
+    public Pair<Integer, Integer> getScore() {
+        return null;
     }
 }
