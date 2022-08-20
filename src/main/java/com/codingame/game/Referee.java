@@ -52,29 +52,24 @@ public class Referee extends AbstractReferee {
 
     private void drawBackground() {
         graphicEntityModule.createSprite()
-                .setImage("Background.jpg")
+                .setImage("old-wood-plank-background.jpg")
                 .setAnchor(0);
         graphicEntityModule.createSprite()
-                .setImage("logo.png")
-                .setX(280)
-                .setY(915)
-                .setAnchor(0.5);
-        graphicEntityModule.createSprite()
-                .setImage("logoCG.png")
-                .setX(1920 - 280)
-                .setY(915)
-                .setAnchor(0.5);
+            .setImage("sheep_logo.png")
+            .setX(1530)
+            .setY(40)
+            .setAnchor(0);
     }
 
     private void drawGrids() {
         int cellSize = 100;
-        state.drawInit(5, 5, cellSize, 0, 0xf9b700);
+        state.drawInit(40, 10, cellSize, 0, 0xf9b700);
     }
     
     private void drawHud() {
         for (Player player : gameManager.getPlayers()) {
             int x = 1920 - 280;
-            int y = player.getIndex() == 0 ? 520 : 1080-220;
+            int y = player.getIndex() == 0 ? 620 : 1080-220;
 
             graphicEntityModule
                 .createRectangle()
@@ -99,7 +94,7 @@ public class Referee extends AbstractReferee {
                 .setY(y + 120)
                 .setZIndex(20)
                 .setFontSize(40)
-                .setFillColor(0)
+                .setFillColor(0xffffff)
                 .setAnchor(0.5);
 
             Sprite avatar = graphicEntityModule.createSprite()
