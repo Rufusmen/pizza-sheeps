@@ -1,4 +1,4 @@
-read mapSize:int
+read myId:int
 read initialSheepWool:int
 read shepardMaxWool:int
 read entityRadius:float
@@ -13,16 +13,14 @@ read barkRadius:float
 read calmCoolDown:int
 read turns:int
 read sheepCnt:int
-read shepardsCnt:int
+read shepherdsCnt:int
 read dogsCnt:int
 read shedsCnt:int
 gameloop
 loop sheepCnt read x:float y:float wool:int isShared:int
-loop shepardsCnt read x:float y:float wool:int shearing:int
-loop shepardsCnt read x:float y:float
-loop dogsCnt read x:float y:float
-loop dogsCnt read x:float y:float
-loop shedsCnt read x:int y:int owner:int wool:int myDogs:int enemyDogs:int
+loop shepherdsCnt read x:float y:float wool:int shearing:int owner:int
+loop dogsCnt read x:float y:float owner:int
+loop shedsCnt read x:int y:int owner:int wool:int
 write MOVE 1 0 -1 -1
 
 STATEMENT

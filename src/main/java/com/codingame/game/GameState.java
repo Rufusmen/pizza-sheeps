@@ -54,7 +54,7 @@ public class GameState {
 
     public int init(Random random) {
         this.random = random;
-        constsSettings = new ConstsSettings();
+        constsSettings = new ConstsSettings(random);
         board.init(constsSettings.mapSizeX, constsSettings.mapSizeY, random);
         generateSheep();
         int shepardCnt = random.nextInt(4) + 1;

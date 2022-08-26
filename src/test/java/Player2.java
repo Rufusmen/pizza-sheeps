@@ -52,16 +52,13 @@ public class Player2 {
         int y;
         int owner;
         int wool;
-        int myDogs;
-        int enemyDogs;
 
-        public Shed(int x, int y, int owner, int wool, int myDogs, int enemyDogs) {
+
+        public Shed(int x, int y, int owner, int wool) {
             this.x = x;
             this.y = y;
             this.owner = owner;
             this.wool = wool;
-            this.myDogs = myDogs;
-            this.enemyDogs = enemyDogs;
         }
 
     }
@@ -70,7 +67,6 @@ public class Player2 {
         Scanner in = new Scanner(System.in);
         Random random = new Random(0);
         myId = in.nextInt();
-        int mapSize = in.nextInt();
         int initialSheepWool = in.nextInt();
         int shepardMaxWool = in.nextInt();
         entityRadius = in.nextFloat();
@@ -111,7 +107,7 @@ public class Player2 {
             List<Shed> sheds = new ArrayList<>();
             for (int i = 0; i < shedsCnt; i++) {
 
-                sheds.add(new Shed(in.nextInt(), in.nextInt(), in.nextInt(), in.nextInt(), in.nextInt(), in.nextInt()));
+                sheds.add(new Shed(in.nextInt(), in.nextInt(), in.nextInt(), in.nextInt()));
             }
             for (int i = 0; i < shepherdsCnt; i++) {
                 Shepherd s = shepherds.get(i);

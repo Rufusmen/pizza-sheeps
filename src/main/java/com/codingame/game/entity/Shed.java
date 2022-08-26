@@ -48,7 +48,7 @@ public class Shed extends Cell {
 
     @Override
     public String toString() {
-        return String.format("%d %d %d %d %d %d", x, y, owner, wool, dogs1, dogs2);
+        return String.format("%d %d %d %d", x, y, owner, wool);
     }
 
 

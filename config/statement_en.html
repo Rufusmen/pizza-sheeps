@@ -1,21 +1,196 @@
-<div class="statement-body"> 
-   <!-- GOAL --> 
-   <div class="statement-section statement-goal"> 
-     <h2> 
-       <span class="icon icon-goal">&nbsp;</span> 
-       <span>The Goal</span> 
-     </h2> 
-     <div class="statement-goal-content"> 
-       Tic-tac-toe is a turn-based game, where the objective is to get three in a row.
-     </div>
-   </div> 
-   <!-- RULES --> 
-   <div class="statement-section statement-rules"> 
-     <h2> 
-       <span class="icon icon-rules">&nbsp;</span> 
-       <span>Rules</span> 
-     </h2> 
-     <div><div class="statement-rules-content">The game is played on a 3x3 grid. You must output the coordinate of the cell you want to mark. The first player to get 3 of their mark in a row (vertically, horizontally or diagonally) wins.</div> 
-     </div> 
-   </div>
+
+<div id="statement_back" class="statement_back" style="display:none"></div>
+<div class="statement-body">
+
+
+    <!-- GOAL -->
+    <div class="statement-section statement-goal">
+        <h1>
+            <span class="icon icon-goal">&nbsp;</span>
+            <span>The Goal</span>
+        </h1>
+        
+        <div class="statement-goal-content">
+            Collect more wool in your sheds than your opponent.
+        </div>
+    </div>
+
+    <!-- RULES -->
+    <div class="statement-section statement-rules">
+        <h1>
+            <span class="icon icon-rules">&nbsp;</span>
+            <span>Rules</span>
+        </h1>
+        <div>
+            <div class="statement-rules-content">
+                <p><strong>The board</strong></p>
+                <p>The board is a plane of size <const>10x15</const>, where the top-left corner is the cell <const>(0,0)</const>. The map is randomly generated at the start of each game.
+                </p>
+                <p>
+                    Both players start with one assigned <strong>Shed</strong> from opposite sides of the map.</p>
+                <p>
+                    A map cell can be either:
+                </p>
+                <ul style="padding-top: 0;">
+                    <li> grass : players cannot interact with grass.</li>
+                    <li> shed : sheds have owners and shepherds can put collected wool there.</li>
+                </ul>
+
+                <p><strong>Units</strong></p>
+                <p>
+                    Each unit is represented by circle on board. Each unit has same radius.
+                </p>
+                <p>
+                    Units are <strong>next to</strong> each other when their circles intersects.
+                </p>
+                <p>
+                    Units are <strong>in cell</strong> when center of their circle is in cell bounds
+                </p>
+                <p>
+                    There is three types of units:
+                </p>
+                <ul style="padding-top: 0;">
+                    <li> sheep : is not playable unit. All moves are generated</li>
+                    <li> dog : is faster than other units and can bark to scare sheep.</li>
+                    <li> shepherd : main player unit. Can shear sheep and transfer wool to sheds<. Shepherds can carry limited number of wool pieces.</li>
+                </ul>
+
+                <p><strong>Movement</strong></p>
+                <p>
+                    Players can give movement commands <action>MOVE</action> to all theirs units with vector as parameter.
+                    This vector scaled by unit's speed will be added to current position.
+                </p>
+
+                <p><strong>Shearing</strong></p>
+                <p>
+                    Shepherds can <action>SHEAR</action> sheep. If sheep still have wool shearing will transfer 1 piece of wool from sheep to shepherd every turn.
+                </p>
+                <p>
+                    During shearing sheep and shepherd cannot move.
+                </p>
+                <p>
+                    To keep shearing player have to repeat <Action>SHEAR</Action> command. Stopping shearing also takes one turn.
+                </p>
+
+                <p><strong>Barking</strong></p>
+                <p>
+                    Players can give <action>BARK</action> command to dog. Barking scare sheep in <strong>barking radius</strong>
+                </p>
+                <p>
+                    Scared sheep moves faster away from barking dog.
+                </p>
+                <p>
+                    When dog barks it cannot move. Barking takes one turn.
+                </p>
+
+                <p><strong>Sheds</strong></p>
+                <p>
+                    Sheds can store unlimited wool.
+                </p>
+                <p>
+                    <strong>Only wool that is in sheds is counted to final score.</strong>
+                </p>
+                <p>
+                    Every player owns one shed from start.
+                </p>
+                <p>
+                    Shepherds can <action>TRANSFER_WOOL</action> to place/take wool into/from shed that is under same ownership.
+                </p>
+                <p>
+                    Sheds without owner can appear on board. Players can take control on those sheds using dogs.
+                </p>
+                <p>
+                    Shed will change ownership to player that has more dogs in shed's cell (that not refers to initially assigned sheds). If both players have same number of dogs in shed's cell, ownership won't change. If there is no dogs in cell shed becomes unowned.
+                </p>
+
+
+    <div class="statement-section statement-protocol">
+        <h1>
+            <span class="icon icon-protocol">&nbsp;</span>
+            <span>Game Input</span>
+        </h1>
+        <div class="blk">
+            <div class="title">Initialization input</div>
+            <div class="text">
+                <p><span class="statement-lineno">Line 1: </span></p>
+                <p>one integer <var>myId</var>: playersId</p>
+                <p>one integer <var>initialSheepWool</var>: number of wool units on each sheep at game start,              </p>
+                <p>one integer <var>shepardMaxWool</var>: maximal number of wool pieces that shepherd can carry,           </p>
+                <p>one float <var>entityRadius</var>: radius of each unit,                                                 </p>
+                <p>one float <var>sheepSpeed2</var>: normal sheep speed,                                                   </p>
+                <p>one float <var>sheepSpeed3</var>: speed of sheep that is going away from player units,                  </p>
+                <p>one float <var>sheepSpeed1</var>: speed of sheep scared of dog's barking,                               </p>
+                <p>one float <var>shepherdSpeed</var>: speed of shepherd,                                                  </p>
+                <p>one float <var>dogSpeed</var>: speed of dog,                                                            </p>
+                <p>one float <var>dangerRadius</var>: distance that sheep would try to keep from players units,            </p>
+                <p>one integer <var>barkCoolDown</var>: number of turns that have to pass between dogs' barks,             </p>
+                <p>one float <var>barkRadius</var>: sheep within this radius will be scared of bark,                       </p>
+                <p>one integer <var>calmCoolDown</var>: number of turns that sheep will be scared after bark,               </p>
+                <p>one integer <var>turns</var>: number of game turns, </p>
+                <p>one integer <var>sheepCnt</var>: number of sheep, </p>
+                <p>one integer <var>shepherdsCnt</var>: number of shepherds, </p>
+                <p>one integer <var>dogsCnt</var>: number of dogs, </p>
+                <p>one integer <var>shedsCnt</var>: number of sheds. </p>
+            </div>
+
+            <div class="title">Game turn input</div>
+            <div class="text">
+                <p><span class="statement-lineno">First <var>sheepCnt</var> lines:</span> sheep description: </p>
+                        <ul style="padding-top: 0; padding-bottom: 0;">
+                            <li>float <var>x</var>: x position of sheep</li>
+                            <li>float <var>y</var>: y position of sheep</li>
+                            <li>int <var>wool</var>: wool units on sheep</li>
+                            <li>int <var>isSheared</var>: 1 if is, 0 if not sheared</li>
+                        </ul>
+                <p><span class="statement-lineno">Next <var>shepherdsCnt</var> lines:</span> shepherds description: </p>
+                        <ul style="padding-top: 0; padding-bottom: 0;">
+                            <li>float <var>x</var>: x position</li>
+                            <li>float <var>y</var>: y position</li>
+                            <li>int <var>wool</var>: wool units carried</li>
+                            <li>int <var>shearing</var>: id of sheared sheep, or 0 if not shearing</li>
+                            <li>int <var>owner</var>: id of owner player</li>
+                        </ul>
+                <p><span class="statement-lineno">Next <var>dogsCnt</var> lines:</span> dogs description: </p>
+                        <ul style="padding-top: 0; padding-bottom: 0;">
+                            <li>float <var>x</var>: x position</li>
+                            <li>float <var>y</var>: y position</li>
+                            <li>int <var>owner</var>: id of owner player</li>
+                        </ul>
+
+                <p><span class="statement-lineno">Next <var>shedsCnt</var> lines:</span> sheds description: </p>
+                        <ul style="padding-top: 0; padding-bottom: 0;">
+                            <li>int <var>x</var>: x position</li>
+                            <li>int <var>y</var>: y position</li>
+                            <li>int <var>owner</var>: id of owner player</li>
+                            <li>int <var>wool</var>: number of wool in shed</li>
+                        </ul>
+            </div>
+        </div>
+
+        <!-- Protocol block -->
+        <div class="blk">
+            <div class="title">Output</div>
+            <div class="text">
+                <span class="statement-lineno">A single line for each owned unit <action>;</action></span>
+                <ul style="padding-top: 0; padding-bottom: 0;">
+                    <li><action>MOVE isDog id x y</action></li>
+                    <li><action>BARK id</action> </li>
+                    <li><action>SHEAR isStart id sheepId</action></li>
+                    <li><action>TRANSFER_WOOL id isDeposit amount</action>.</li>
+                </ul>
+                <p>
+                    id is the order number of input list counted from 1.
+                </p>
+            </div>
+        </div>
+    
+        <!-- Protocol block -->
+        <div class="blk">
+            <div class="title">Constraints</div>
+            Allotted response time to output is ≤ <const>50ms</const>.
+            <br />
+            Allotted response time to output on the first turn is ≤ <const>1000ms</const>.
+        </div>
+    </div>
 </div>
+
