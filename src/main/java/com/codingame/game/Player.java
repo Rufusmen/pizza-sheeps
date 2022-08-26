@@ -46,7 +46,7 @@ public class Player extends AbstractMultiplayerPlayer {
                         Integer.parseInt(outputs[3])));
                     break;
                 default:
-                    throw new InvalidAction("invalid action");
+                    throw new InvalidAction("invalid action: " + output);
             }
         }
         return actions;

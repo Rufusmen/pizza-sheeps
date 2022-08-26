@@ -6,7 +6,7 @@ public class ConstsSettings {
     public double shepardSpeed = 0.4;
     public double sheepSpeed1 = 0.1500;
     public double sheepSpeed2 = 0.2500;
-    public double sheepSpeed3 = 0.4000;
+    public double sheepSpeed3 = 0.3500;
     public int sameDirectionProbability = 60;
     public double dangerRadius = 2;
     public double barkRadius = 1;
@@ -17,9 +17,9 @@ public class ConstsSettings {
     public int mapSizeX = 10;
     public int mapSizeY = 15;
     public int calmCoolDown = 3;
-    public int turns = 100;
-    public int maxSheep = 100;
-    public int minSheep = 10;
+    public int turns = 200;
+    public int maxSheep = 75;
+    public int minSheep = 25;
 
     @Override
     public String toString() {

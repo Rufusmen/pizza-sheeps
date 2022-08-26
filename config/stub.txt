@@ -1,16 +1,33 @@
+read mapSize:int
+read initialSheepWool:int
+read shepardMaxWool:int
+read entityRadius:float
+read sheepSpeed1:float
+read sheepSpeed2:float
+read sheepSpeed3:float
+read shepardSpeed:float
+read dogSpeed:float
+read dangerRadius:float
+read barkCoolDown:int
+read barkRadius:float
+read calmCoolDown:int
+read turns:int
+read sheepCnt:int
+read shepardsCnt:int
+read dogsCnt:int
+read shedsCnt:int
 gameloop
-read opponentRow:int opponentCol:int
-read validActionCount:int
-loop validActionCount read row:int col:int
-write 0 0
+loop sheepCnt read x:float y:float wool:int isShared:int
+loop shepardsCnt read x:float y:float wool:int shearing:int
+loop shepardsCnt read x:float y:float
+loop dogsCnt read x:float y:float
+loop dogsCnt read x:float y:float
+loop shedsCnt read x:int y:int owner:int wool:int myDogs:int enemyDogs:int
+write MOVE 1 0 -1 -1
 
 STATEMENT
-Get 3 cells in a row!
+Collect more wool in your sheds than opponent
 
-INPUT
-opponentRow: The coordinates of your opponent's last move
-validActionCount: the number of possible actions for your next move
-row: The coordinates of a possible next move
 
 OUTPUT
-<row> <column>
+MOVE isDog id x y | BARK id | SHEAR isStart id sheepId | TRANSFER_WOOL id isDeposit amount

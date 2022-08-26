@@ -24,21 +24,21 @@ public class Vector2 implements Cloneable {
     }
 
     @Override
-    public String toString(){
-        return String.format("%f %f",x,y);
+    public String toString() {
+        return String.format("%f %f", x, y);
     }
 
-    public void checkInBound(double boundX,double boundY){
-        if(x < 0){
+    public void checkInBound(double boundX, double boundY) {
+        if (x < 0) {
             x = 1e-6;
         }
-        if(y < 0){
+        if (y < 0) {
             y = 1e-6;
         }
-        if(x > boundX){
+        if (x > boundX) {
             x = boundX - 1e-6;
         }
-        if(y > boundY){
+        if (y > boundY) {
             y = boundY - 1e-6;
         }
     }
@@ -66,6 +66,7 @@ public class Vector2 implements Cloneable {
 
     public void normalize() {
         double length = sqrt(x * x + y * y);
+        if(Math.abs(length)< 1e-5)return;
         x = x / length;
         y = y / length;
     }

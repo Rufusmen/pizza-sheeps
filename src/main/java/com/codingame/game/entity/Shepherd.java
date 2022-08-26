@@ -23,6 +23,6 @@ public class Shepherd extends Entity {
     }
 
     public String toStringFull() {
-        return String.format("%s %d %d", this, wool, shearing + 1);
+        return String.format("%.6f %.6f %d %d %d" , position.getX(), position.getY(), wool, shearing + 1,owner);
     }
 }

@@ -65,17 +65,10 @@ public abstract class Entity {
         return this.owner;
     }
 
-    public void setOwner(int owner) {
-        this.owner = owner;
-    }
-
-    public void switchOwner() {
-        owner = owner == 1 ? 2 : 1;
-    }
 
     @Override
     public String toString() {
-        return String.format("%.6f %.6f", position.getX(), position.getY());
+        return String.format("%.6f %.6f %d", position.getX(), position.getY(),owner);
     }
 
 }

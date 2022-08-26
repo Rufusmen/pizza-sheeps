@@ -41,12 +41,15 @@ public class Referee extends AbstractReferee {
 
         sendInitInputs();
 
+
     }
 
     private void sendInitInputs() {
         for (Player p : gameManager.getActivePlayers()) {
-            p.setPawns(1);
+            p.setPawns(state.pawnsNo());
+            p.sendInputLine(String.format("%d",p.getIndex()));
             p.sendInputLine(state.getConsts());
+            p.sendInputLine(state.getCounts());
         }
     }
 
@@ -116,7 +119,7 @@ public class Referee extends AbstractReferee {
         for (Player p : gameManager.getActivePlayers()) {
             sheeps.forEach(p::sendInputLine);
             state.getShepherdsInput(p).forEach(p::sendInputLine);
-            state.getDogsInput(p).forEach(p::sendInputLine);
+            state.getDogsInput().forEach(p::sendInputLine);
             sheds.forEach(p::sendInputLine);
             p.execute();
         }
@@ -155,7 +158,7 @@ public class Referee extends AbstractReferee {
                 player.setScore(-1);
                 endGame();
             } catch (InvalidAction e){
-                gameManager.addToGameSummary(GameManager.formatErrorMessage(player.getNicknameToken() + " invalid action!"));
+                gameManager.addToGameSummary(GameManager.formatErrorMessage(player.getNicknameToken() + " " + e.getMessage()));
                 player.deactivate(player.getNicknameToken() + " invalid action!");
                 player.setScore(-1);
                 endGame();

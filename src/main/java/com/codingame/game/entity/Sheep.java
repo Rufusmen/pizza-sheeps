@@ -15,6 +15,13 @@ public class Sheep extends Entity {
         isScared = false;
     }
 
+    public void decrWool(){
+        wool--;
+        if(wool==0){
+            sprite.setImage("sheepBald.png").setBaseWidth(27).setBaseHeight(49).setAnchor(0.5);
+        }
+    }
+
     public void onBark(Vector2 v, double rad) {
         isScared = !isSheared && position.inRadius(v, rad);
     }
