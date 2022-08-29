@@ -11,21 +11,21 @@ read dangerRadius:float
 read barkCoolDown:int
 read barkRadius:float
 read calmCoolDown:int
-read turns:int
 read sheepCnt:int
 read shepherdsCnt:int
 read dogsCnt:int
 read shedsCnt:int
+read myUnitsCnt:int
 gameloop
-loop sheepCnt read x:float y:float wool:int isShared:int
-loop shepherdsCnt read x:float y:float wool:int shearing:int owner:int
-loop dogsCnt read x:float y:float owner:int
+loop sheepCnt read id:int x:float y:float wool:int isShared:int
+loop shepherdsCnt read id:int x:float y:float wool:int shearing:int owner:int
+loop dogsCnt read id:int x:float y:float owner:int
 loop shedsCnt read x:int y:int owner:int wool:int
-write MOVE 1 0 -1 -1
+loop myUnitsCnt write MOVE 0 0 0
 
 STATEMENT
 Collect more wool in your sheds than opponent
 
 
 OUTPUT
-MOVE isDog id x y | BARK id | SHEAR isStart id sheepId | TRANSFER_WOOL id isDeposit amount
+MOVE id x y | BARK id | SHEAR id sheepId | TRANSFER_WOOL id isDeposit amount

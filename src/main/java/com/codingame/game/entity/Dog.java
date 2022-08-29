@@ -6,14 +6,19 @@ public class Dog extends Entity {
 
     public int barkCoolDown;
 
-    public Dog(Vector2 position,int owner) {
-        super(position);
+    public Dog(int id,Vector2 position,int owner) {
+        super(id,position);
         this.owner=owner;
     }
 
     @Override
     public void draw() {
         updatePosition();
+    }
+
+    @Override
+    public String tooltipTxt() {
+        return String.format("id: %d%n position: (%.6f,%.6f)",id,position.getX(),position.getY());
     }
 
     @Override

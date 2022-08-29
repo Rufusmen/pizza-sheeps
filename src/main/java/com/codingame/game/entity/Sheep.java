@@ -5,13 +5,13 @@ import com.codingame.game.Vector2;
 public class Sheep extends Entity {
 
     public int wool;
-    public boolean isSheared;
+    public int shearedBy;
     public boolean isScared;
 
-    public Sheep(Vector2 position, int wool) {
-        super(position);
+    public Sheep(int id,Vector2 position, int wool) {
+        super(id,position);
         this.wool = wool;
-        isSheared = false;
+        shearedBy = 0;
         isScared = false;
     }
 
@@ -23,12 +23,17 @@ public class Sheep extends Entity {
     }
 
     public void onBark(Vector2 v, double rad) {
-        isScared = !isSheared && position.inRadius(v, rad);
+        isScared = shearedBy ==0 && position.inRadius(v, rad);
     }
 
     @Override
     protected void setSprite() {
         sprite.setImage("sheep.png").setBaseWidth(27).setBaseHeight(49).setAnchor(0.5);
+    }
+
+    @Override
+    public String tooltipTxt() {
+        return String.format("id: %d%n position: (%.6f,%.6f)%n wool: %d",id,position.getX(),position.getY(),wool);
     }
 
     @Override
@@ -38,7 +43,7 @@ public class Sheep extends Entity {
 
     @Override
     public String toString() {
-        return String.format("%.6f %.6f %d %d", position.getX(), position.getY(), wool, isSheared ? 1 : 0);
+        return String.format("%d %.6f %.6f %d %d",id, position.getX(), position.getY(), wool, shearedBy !=0 ? 1 : 0);
     }
 
 }

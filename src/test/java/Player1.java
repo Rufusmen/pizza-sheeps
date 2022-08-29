@@ -15,11 +15,12 @@ public class Player1 {
     static int myId;
 
     static class Actor {
-
+        int id;
         float x, y;
         int owner;
 
-        public Actor(float x, float y, int owner) {
+        public Actor(int id,float x, float y, int owner) {
+            this.id=id;
             this.owner = owner;
             this.x = x;
             this.y = y;
@@ -30,8 +31,8 @@ public class Player1 {
 
         int wool, shearing;
 
-        public Shepherd(float x, float y, int wool, int shearing, int owner) {
-            super(x, y, owner);
+        public Shepherd(int id,float x, float y, int wool, int shearing, int owner) {
+            super(id,x, y, owner);
             this.wool = wool;
             this.shearing = shearing;
         }
@@ -40,10 +41,10 @@ public class Player1 {
     static class Sheep extends Actor {
 
         int wool;
-        boolean isSheared;
+        int isSheared;
 
-        public Sheep(float x, float y, int wool, boolean isSheared) {
-            super(x, y, -1);
+        public Sheep(int id,float x, float y, int wool, int isSheared) {
+            super(id,x, y, -1);
             this.wool = wool;
             this.isSheared = isSheared;
         }
@@ -83,30 +84,30 @@ public class Player1 {
         int barkCoolDown = in.nextInt();
         float barkRadius = in.nextFloat();
         int calmCoolDown = in.nextInt();
-        int turns = in.nextInt();
 
         int sheepCnt = in.nextInt();
         int shepherdsCnt = in.nextInt();
         int dogsCnt = in.nextInt();
         int shedsCnt = in.nextInt();
         Set<Integer> dogStay = new HashSet<>();
+        int allUnits = in.nextInt();
         Shed sed = null;
         while (true) {
             //int sheepCnt = in.nextInt();
             List<Sheep> sheep = new ArrayList<>();
             for (int i = 0; i < sheepCnt; i++) {
-                sheep.add(new Sheep(in.nextFloat(), in.nextFloat(), in.nextInt(), in.nextInt() != 0));
+                sheep.add(new Sheep(in.nextInt(),in.nextFloat(), in.nextFloat(), in.nextInt(), in.nextInt()));
             }
             //int myShepherdsCnt = in.nextInt();
             List<Shepherd> shepherds = new ArrayList<>();
             for (int i = 0; i < shepherdsCnt; i++) {
-                shepherds.add(new Shepherd(in.nextFloat(), in.nextFloat(), in.nextInt(), in.nextInt(), in.nextInt()));
+                shepherds.add(new Shepherd(in.nextInt(),in.nextFloat(), in.nextFloat(), in.nextInt(), in.nextInt(), in.nextInt()));
             }
             //int enemyShepherdsCnt = in.nextInt();
             //int enemyDogsCnt = in.nextInt();
             List<Actor> dogs = new ArrayList<>();
             for (int i = 0; i < dogsCnt; i++) {
-                dogs.add(new Actor(in.nextFloat(), in.nextFloat(), in.nextInt()));
+                dogs.add(new Actor(in.nextInt(),in.nextFloat(), in.nextFloat(), in.nextInt()));
             }
             //int shedsCnt = in.nextInt();
             List<Shed> sheds = new ArrayList<>();
@@ -127,14 +128,14 @@ public class Player1 {
                 Actor d = dogs.get(i);
                 if (d.owner == myId) {
                     if (sed == null || dogStay.contains(i)) {
-                        System.out.printf("MOVE 0 %d 0 0%n", i);
+                        System.out.printf("MOVE %d 0 0%n", d.id);
                     } else {
                         if (((int) d.x) == sed.x && ((int) d.y) == sed.y) {
                             dogStay.add(i);
                             sed = null;
-                            System.out.printf("MOVE 0 %d 0 0%n", i);
+                            System.out.printf("MOVE %d 0 0%n", d.id);
                         } else {
-                            System.out.printf(Locale.ROOT, "MOVE 0 %d %f %f%n", i, sed.x+0.5 - d.x, sed.y+0.5 - d.y);
+                            System.out.printf(Locale.ROOT, "MOVE %d %f %f%n", d.id, sed.x+0.5 - d.x, sed.y+0.5 - d.y);
                         }
                     }
                 }
@@ -147,18 +148,18 @@ public class Player1 {
         if (sp.shearing != 0) {
             Sheep s = sheep.get(sp.shearing - 1);
             if (s.wool <= 0) {
-                System.out.printf("SHEAR 0 %d %d%n", id, sp.shearing);
+                System.out.printf("MOVE %d 0 0%n", sp.id);
             } else {
-                System.out.printf("SHEAR 1 %d %d%n", id, sp.shearing);
+                System.out.printf("SHEAR %d %d%n", sp.id, sp.shearing);
             }
             return;
         }
         Shed sed = sheds.stream().filter(s -> s.owner == myId).min(Comparator.comparingDouble(s -> dist(s.x, sp.x, s.y, sp.y))).get();
         if (sp.wool > 0) {
             if (sed.x == Math.floor(sp.x) && sed.y == Math.floor(sp.y)) {
-                System.out.printf("TRANSFER_WOOL 1 %d %d%n", id, sp.wool);
+                System.out.printf("TRANSFER_WOOL 1 %d %d%n", sp.id, sp.wool);
             } else {
-                System.out.printf(Locale.ROOT, "MOVE 1 %d %f %f%n", id, sed.x+0.5 - sp.x, sed.y+0.5 - sp.y);
+                System.out.printf(Locale.ROOT, "MOVE %d %f %f%n", sp.id, sed.x+0.5 - sp.x, sed.y+0.5 - sp.y);
             }
             return;
         }
@@ -173,11 +174,11 @@ public class Player1 {
             }
         }
         if (closesSheep == null) {
-            System.out.printf("MOVE 1 %d 0 0%n", id);
+            System.out.printf("MOVE %d 0 0%n", sp.id);
         } else if (isNearSheep(closesSheep, sp)) {
-            System.out.printf("SHEAR 1 %d %d%n", id, sheep.indexOf(closesSheep) + 1);
+            System.out.printf("SHEAR %d %d%n", sp.id, sheep.indexOf(closesSheep) + 1);
         } else {
-            System.out.printf(Locale.ROOT, "MOVE 1 %d %f %f%n", id, closesSheep.x - sp.x, closesSheep.y - sp.y);
+            System.out.printf(Locale.ROOT, "MOVE %d %f %f%n", sp.id, closesSheep.x - sp.x, closesSheep.y - sp.y);
         }
     }
 

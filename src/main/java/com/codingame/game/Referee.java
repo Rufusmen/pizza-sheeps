@@ -1,41 +1,49 @@
 package com.codingame.game;
 
 import com.codingame.game.actions.AbstractAction;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import com.codingame.gameengine.core.AbstractPlayer.TimeoutException;
 import com.codingame.gameengine.core.AbstractReferee;
 import com.codingame.gameengine.core.GameManager;
 import com.codingame.gameengine.core.MultiplayerGameManager;
+import com.codingame.gameengine.module.endscreen.EndScreenModule;
 import com.codingame.gameengine.module.entities.GraphicEntityModule;
 import com.codingame.gameengine.module.entities.Sprite;
 import com.codingame.gameengine.module.entities.Text;
+import com.codingame.gameengine.module.tooltip.TooltipModule;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import org.apache.commons.lang3.tuple.Pair;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 
 public class Referee extends AbstractReferee {
-    @Inject private MultiplayerGameManager<Player> gameManager;
-    @Inject private GraphicEntityModule graphicEntityModule;
-    @Inject private Provider<GameState> gameStateProvider;
+
+    @Inject
+    private MultiplayerGameManager<Player> gameManager;
+    @Inject
+    private GraphicEntityModule graphicEntityModule;
+    @Inject
+    private Provider<GameState> gameStateProvider;
+    @Inject
+    private TooltipModule tooltips;
+    @Inject EndScreenModule endScreenModule;
 
     private GameState state;
     private List<AbstractAction> validActions;
-    private Random random;
-    
+
+    private final Map<Integer,Text> texts = new HashMap<>();
+
     @Override
     public void init() {
-        random = new Random(gameManager.getSeed());
+        Random random = new Random(gameManager.getSeed());
         state = gameStateProvider.get();
         gameManager.setMaxTurns(state.init(random));
         drawBackground();
         drawHud();
         drawGrids();
-
-
 
         gameManager.setFrameDuration(100);
 
@@ -47,7 +55,7 @@ public class Referee extends AbstractReferee {
     private void sendInitInputs() {
         for (Player p : gameManager.getActivePlayers()) {
             p.setPawns(state.pawnsNo());
-            p.sendInputLine(String.format("%d",p.getIndex()));
+            p.sendInputLine(String.format("%d", p.getIndex()));
             p.sendInputLine(state.getConsts());
             p.sendInputLine(state.getCounts());
         }
@@ -55,8 +63,8 @@ public class Referee extends AbstractReferee {
 
     private void drawBackground() {
         graphicEntityModule.createSprite()
-                .setImage("old-wood-plank-background.jpg")
-                .setAnchor(0);
+            .setImage("old-wood-plank-background.jpg")
+            .setAnchor(0);
         graphicEntityModule.createSprite()
             .setImage("sheep_logo.png")
             .setX(1530)
@@ -68,11 +76,11 @@ public class Referee extends AbstractReferee {
         int cellSize = 100;
         state.drawInit(40, 10, cellSize, 0, 0xf9b700);
     }
-    
+
     private void drawHud() {
         for (Player player : gameManager.getPlayers()) {
             int x = 1920 - 280;
-            int y = player.getIndex() == 0 ? 620 : 1080-220;
+            int y = player.getIndex() == 0 ? 620 : 1080 - 220;
 
             graphicEntityModule
                 .createRectangle()
@@ -93,12 +101,13 @@ public class Referee extends AbstractReferee {
                 .setFillColor(0xffffff);
 
             Text text = graphicEntityModule.createText(player.getNicknameToken())
-                .setX(x)
+                .setX(x+50)
                 .setY(y + 120)
                 .setZIndex(20)
                 .setFontSize(40)
                 .setFillColor(0xffffff)
                 .setAnchor(0.5);
+            texts.put(player.getIndex(),text);
 
             Sprite avatar = graphicEntityModule.createSprite()
                 .setX(x)
@@ -130,16 +139,11 @@ public class Referee extends AbstractReferee {
         gameManager.addToGameSummary(GameManager.formatSuccessMessage(player.getNicknameToken() + " won!"));
     }
 
-    private void updateScore(){
-        for (Player p : gameManager.getActivePlayers()) {
-            p.setScore(state.getScore(p.getIndex()));
-        }
-    }
 
 
     @Override
     public void gameTurn(int turn) {
-        
+
         sendPlayerInputs();
 
         // Read inputs
@@ -152,12 +156,12 @@ public class Referee extends AbstractReferee {
                 player.deactivate("Wrong output!");
                 player.setScore(-1);
                 endGame();
-            } catch (TimeoutException  e ) {
+            } catch (TimeoutException e) {
                 gameManager.addToGameSummary(GameManager.formatErrorMessage(player.getNicknameToken() + " timeout!"));
                 player.deactivate(player.getNicknameToken() + " timeout!");
                 player.setScore(-1);
                 endGame();
-            } catch (InvalidAction e){
+            } catch (InvalidAction e) {
                 gameManager.addToGameSummary(GameManager.formatErrorMessage(player.getNicknameToken() + " " + e.getMessage()));
                 player.deactivate(player.getNicknameToken() + " invalid action!");
                 player.setScore(-1);
@@ -166,16 +170,29 @@ public class Referee extends AbstractReferee {
         }
         state.resolveActions(actions);
         state.onTurnEnd();
+        state.updateTooltip(tooltips);
+        updateScore();
+    }
+
+    private void updateScore() {
+        for (Player p : gameManager.getActivePlayers()) {
+            p.setScore(state.getScore(p.getIndex()));
+        };
+        Player p0 = gameManager.getPlayers().get(0);
+        Player p1 = gameManager.getPlayers().get(1);
+        texts.get(0).setText(p0.getNicknameToken() + " score: " + p0.getScore());
+        texts.get(1).setText(p1.getNicknameToken() + " score: " + p1.getScore());
     }
 
     @Override
-    public void onEnd(){
+    public void onEnd() {
         endGame();
+        endScreenModule.setTitleRankingsSprite("logoend.png");
+        endScreenModule.setScores(gameManager.getPlayers().stream().mapToInt(p -> p.getScore()).toArray());
     }
 
     private void endGame() {
         gameManager.endGame();
-        updateScore();
         Player p0 = gameManager.getPlayers().get(0);
         Player p1 = gameManager.getPlayers().get(1);
         if (p0.getScore() > p1.getScore()) {

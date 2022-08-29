@@ -46,6 +46,10 @@ public class Shed extends Cell {
         }
     }
 
+    public String tooltipTxt() {
+        return String.format("cell: (%d,%d)%n wool: %d%n owner: %d",x,y,wool,owner);
+    }
+
     @Override
     public String toString() {
         return String.format("%d %d %d %d", x, y, owner, wool);

@@ -1,7 +1,5 @@
 package com.codingame.game;
 
-import static com.codingame.game.Util.otherId;
-
 import com.codingame.game.actions.AbstractAction;
 import com.codingame.game.actions.BarkAction;
 import com.codingame.game.actions.MoveAction;
@@ -14,10 +12,10 @@ import com.codingame.game.entity.Sheep;
 import com.codingame.game.entity.Shepherd;
 import com.codingame.gameengine.module.entities.GraphicEntityModule;
 import com.codingame.gameengine.module.entities.Group;
+import com.codingame.gameengine.module.tooltip.TooltipModule;
 import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -36,6 +34,8 @@ public class GameState {
     private Random random;
     private ConstsSettings constsSettings;
 
+    private int id;
+
 
     public void drawInit(int i, int i1, int bigCellSize, int i2, int i3) {
         board.drawInit(i, i1, bigCellSize, i2);
@@ -53,35 +53,37 @@ public class GameState {
     }
 
     public int init(Random random) {
+        id = 1;
         this.random = random;
         constsSettings = new ConstsSettings(random);
         board.init(constsSettings.mapSizeX, constsSettings.mapSizeY, random);
         generateSheep();
-        int shepardCnt = random.nextInt(4) + 1;
-        int dogCnt = random.nextInt(3)+1;
+        int shepardCnt = random.nextInt(3) + 1;
+        int dogCnt = random.nextInt(3) + 1;
         while (shepardCnt-- > 0) {
             double x = random.nextDouble() * 9;
-            shepherds.add(new Shepherd(new Vector2(x, 1), 0));
-            shepherds.add(new Shepherd(new Vector2(x, 13), 1));
+            shepherds.add(new Shepherd(++id, new Vector2(x, 1), 0));
+            shepherds.add(new Shepherd(++id, new Vector2(x, 13), 1));
         }
         while (dogCnt-- > 0) {
             double x = random.nextDouble() * 9;
-            dogs.add(new Dog(new Vector2(x, 2), 0));
-            dogs.add(new Dog(new Vector2(x, 12), 1));
+            dogs.add(new Dog(++id, new Vector2(x, 2), 0));
+            dogs.add(new Dog(++id, new Vector2(x, 12), 1));
         }
         return constsSettings.turns;
     }
 
-    public int pawnsNo(){
-        return (shepherds.size()+dogs.size())/2;
+    public int pawnsNo() {
+        return (shepherds.size() + dogs.size()) / 2;
 
     }
 
     private void generateSheep() {
         int sheepNo = random.nextInt(constsSettings.maxSheep - constsSettings.minSheep) + constsSettings.minSheep;
         while (sheepNo-- > 0) {
-            sheeps.add(new Sheep(new Vector2(random.nextDouble() * constsSettings.mapSizeX, random.nextDouble() * constsSettings.mapSizeY),
-                constsSettings.initialSheepWool));
+            sheeps.add(
+                new Sheep(++id, new Vector2(random.nextDouble() * constsSettings.mapSizeX, random.nextDouble() * constsSettings.mapSizeY),
+                    constsSettings.initialSheepWool));
         }
     }
 
@@ -102,6 +104,7 @@ public class GameState {
         res.add(Integer.toString(shepherds.size()));
         res.add(Integer.toString(dogs.size()));
         res.add(Integer.toString(board.getShedSize()));
+        res.add(Integer.toString((shepherds.size() + dogs.size()) / 2));
         return String.join(" ", res);
     }
 
@@ -145,7 +148,7 @@ public class GameState {
         boolean[] inDanger = new boolean[sheeps.size()];
         for (int i = 0; i < sheeps.size(); i++) {
             Sheep sheep = sheeps.get(i);
-            if (sheep.isSheared) {
+            if (sheep.shearedBy !=0 ) {
                 sheepsDirections.add(null);
                 continue;
             }
@@ -162,7 +165,7 @@ public class GameState {
             }
             boolean added = false;
             for (int j = 0; j < i; j++) {
-                if (!sheeps.get(j).isSheared && sheeps.get(j).getPosition()
+                if (sheeps.get(j).shearedBy == 0 && sheeps.get(j).getPosition()
                     .inRadius(sheep.getPosition(), constsSettings.entityRadius * 2.0)) {
                     sheepsDirections.add(sheepsDirections.get(j));
                     added = true;
@@ -182,10 +185,10 @@ public class GameState {
             }
         }
         for (Shepherd s : shepherds) {
-            if (s.shearing == -1) {
+            if (s.shearing == 0) {
                 continue;
             }
-            Sheep sh = sheeps.get(s.shearing);
+            Sheep sh = sheeps.get(s.shearing - 1);
             if (sh.wool > 0 && s.wool < constsSettings.shepardMaxWool) {
                 sh.decrWool();
                 s.wool++;
@@ -209,49 +212,44 @@ public class GameState {
     }
 
     private void bark(BarkAction action) {
-        Dog dog = dogs.get(action.id);
-        if (dog.getOwner() == action.player.getIndex() && dog.barkCoolDown <= 0) {
+        Dog dog = dogs.stream().filter(d -> d.id == action.id).findFirst().orElse(null);
+        if (dog != null && dog.getOwner() == action.player.getIndex() && dog.barkCoolDown <= 0) {
             sheeps.forEach(s -> s.onBark(dog.getPosition(), constsSettings.barkRadius));
             dog.barkCoolDown = constsSettings.barkCoolDown;
         }
     }
 
     private void move(MoveAction action) {
-        if (action.isDog) {
-            Dog dog = dogs.get(action.id);
-            if (dog.getOwner() == action.player.getIndex()) {
-                dog.move(action.direction, constsSettings.dogSpeed);
+        Dog dog = dogs.stream().filter(d -> d.id == action.id).findFirst().orElse(null);
+        if (dog != null && dog.getOwner() == action.player.getIndex()) {
+            dog.move(action.direction, constsSettings.dogSpeed);
+        }
+        Shepherd shepherd = shepherds.stream().filter(s -> s.id == action.id).findFirst().orElse(null);
+        if (shepherd != null && shepherd.getOwner() == action.player.getIndex()) {
+            if(shepherd.shearing!=0){
+                sheeps.get(shepherd.shearing-1).shearedBy = 0;
+                shepherd.shearing=0;
             }
-        } else {
-            Shepherd shepherd = shepherds.get(action.id);
-            if (shepherd.getOwner() == action.player.getIndex()) {
-                shepherd.move(action.direction, constsSettings.shepardSpeed);
-            }
+            shepherd.move(action.direction, constsSettings.shepardSpeed);
         }
     }
 
     private void shear(ShearAction action) {
-        Shepherd shepherd = shepherds.get(action.id);
-        if (shepherd.getOwner() != action.player.getIndex()) {
+        Shepherd shepherd = shepherds.stream().filter(s -> s.id == action.id).findFirst().orElse(null);
+        if (shepherd == null || shepherd.getOwner() != action.player.getIndex()) {
             return;
         }
         Sheep sheep = sheeps.get(action.sheepId - 1);
-        if (action.isStart) {
-            if (!sheep.isSheared && sheep.getPosition().inRadius(shepherd.getPosition(), constsSettings.entityRadius * 2.0)) {
-                sheep.isSheared = true;
-                shepherd.shearing = action.sheepId - 1;
-            }
-        } else {
-            if (sheep.isSheared && shepherd.shearing == action.sheepId - 1) {
-                shepherd.shearing = -1;
-                sheep.isSheared = false;
-            }
+        if (sheep.shearedBy == 0 && sheep.getPosition().inRadius(shepherd.getPosition(), constsSettings.entityRadius * 2.0)) {
+            sheep.shearedBy = shepherd.id;
+            shepherd.shearing = action.sheepId;
         }
+
     }
 
     private void transfer(TransferWoolAction action) {
-        Shepherd shepherd = shepherds.get(action.id);
-        if (shepherd.getOwner() != action.player.getIndex()) {
+        Shepherd shepherd = shepherds.stream().filter(s -> s.id == action.id).findFirst().orElse(null);
+        if (shepherd == null || shepherd.getOwner() != action.player.getIndex()) {
             return;
         }
         Shed shed = board.getShed(shepherd.getPosition());
@@ -271,5 +269,12 @@ public class GameState {
 
     public int getScore(int id) {
         return board.getScore(id);
+    }
+
+    public void updateTooltip(TooltipModule tooltips) {
+        //sheeps.forEach(s -> tooltips.setTooltipText(s.getSprite(), s.tooltipTxt()));
+        dogs.forEach(d -> tooltips.setTooltipText(d.getSprite(), d.tooltipTxt()));
+        shepherds.forEach(s -> tooltips.setTooltipText(s.getSprite(), s.tooltipTxt()));
+        board.updateTooltip(tooltips);
     }
 }

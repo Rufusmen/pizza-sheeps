@@ -1,10 +1,14 @@
 import static java.lang.Math.sqrt;
 
+
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Set;
 
 public class Player2 {
 
@@ -12,35 +16,36 @@ public class Player2 {
     static int myId;
 
     static class Actor {
-
+        int id;
         float x, y;
         int owner;
 
-        public Actor(float x, float y, int owner) {
+        public Actor(int id,float x, float y, int owner) {
+            this.id=id;
             this.owner = owner;
             this.x = x;
             this.y = y;
         }
     }
 
-    static class Shepherd extends Actor {
+    static class Shepherd extends Player1.Actor {
 
         int wool, shearing;
 
-        public Shepherd(float x, float y, int wool, int shearing, int owner) {
-            super(x, y, owner);
+        public Shepherd(int id,float x, float y, int wool, int shearing, int owner) {
+            super(id,x, y, owner);
             this.wool = wool;
             this.shearing = shearing;
         }
     }
 
-    static class Sheep extends Actor {
+    static class Sheep extends Player1.Actor {
 
         int wool;
-        boolean isSheared;
+        int isSheared;
 
-        public Sheep(float x, float y, int wool, boolean isSheared) {
-            super(x, y, -1);
+        public Sheep(int id,float x, float y, int wool, int isSheared) {
+            super(id,x, y, -1);
             this.wool = wool;
             this.isSheared = isSheared;
         }
@@ -59,6 +64,7 @@ public class Player2 {
             this.y = y;
             this.owner = owner;
             this.wool = wool;
+
         }
 
     }
@@ -79,79 +85,88 @@ public class Player2 {
         int barkCoolDown = in.nextInt();
         float barkRadius = in.nextFloat();
         int calmCoolDown = in.nextInt();
-        int turns = in.nextInt();
 
         int sheepCnt = in.nextInt();
         int shepherdsCnt = in.nextInt();
         int dogsCnt = in.nextInt();
         int shedsCnt = in.nextInt();
-        int barkTime = 0;
+        Set<Integer> dogStay = new HashSet<>();
+        int allUnits = in.nextInt();
+        Player1.Shed sed = null;
         while (true) {
             //int sheepCnt = in.nextInt();
-            List<Sheep> sheep = new ArrayList<>();
+            List<Player1.Sheep> sheep = new ArrayList<>();
             for (int i = 0; i < sheepCnt; i++) {
-                sheep.add(new Sheep(in.nextFloat(), in.nextFloat(), in.nextInt(), in.nextInt() != 0));
+                sheep.add(new Player1.Sheep(in.nextInt(),in.nextFloat(), in.nextFloat(), in.nextInt(), in.nextInt()));
             }
             //int myShepherdsCnt = in.nextInt();
-            List<Shepherd> shepherds = new ArrayList<>();
+            List<Player1.Shepherd> shepherds = new ArrayList<>();
             for (int i = 0; i < shepherdsCnt; i++) {
-                shepherds.add(new Shepherd(in.nextFloat(), in.nextFloat(), in.nextInt(), in.nextInt(), in.nextInt()));
+                shepherds.add(new Player1.Shepherd(in.nextInt(),in.nextFloat(), in.nextFloat(), in.nextInt(), in.nextInt(), in.nextInt()));
             }
             //int enemyShepherdsCnt = in.nextInt();
             //int enemyDogsCnt = in.nextInt();
-            List<Actor> dogs = new ArrayList<>();
+            List<Player1.Actor> dogs = new ArrayList<>();
             for (int i = 0; i < dogsCnt; i++) {
-                dogs.add(new Actor(in.nextFloat(), in.nextFloat(), in.nextInt()));
+                dogs.add(new Player1.Actor(in.nextInt(),in.nextFloat(), in.nextFloat(), in.nextInt()));
             }
             //int shedsCnt = in.nextInt();
-            List<Shed> sheds = new ArrayList<>();
+            List<Player1.Shed> sheds = new ArrayList<>();
             for (int i = 0; i < shedsCnt; i++) {
 
-                sheds.add(new Shed(in.nextInt(), in.nextInt(), in.nextInt(), in.nextInt()));
+                sheds.add(new Player1.Shed(in.nextInt(), in.nextInt(), in.nextInt(), in.nextInt()));
             }
             for (int i = 0; i < shepherdsCnt; i++) {
-                Shepherd s = shepherds.get(i);
+                Player1.Shepherd s = shepherds.get(i);
                 if (s.owner == myId) {
                     playShepard(s, i, sheds, sheep);
                 }
             }
+            if (sed == null) {
+                sed = sheds.stream().filter(s -> s.owner == -1).findFirst().orElse(null);
+            }
             for (int i = 0; i < dogsCnt; i++) {
-                Actor d = dogs.get(i);
+                Player1.Actor d = dogs.get(i);
                 if (d.owner == myId) {
-
-                    if (barkTime == 0) {
-                        System.out.printf("BARK %d%n", i);
+                    if (sed == null || dogStay.contains(i)) {
+                        System.out.printf("MOVE %d 0 0%n", d.id);
                     } else {
-                        System.out.printf("MOVE 0 %d %d %d%n", i, random.nextInt(), random.nextInt());
+                        if (((int) d.x) == sed.x && ((int) d.y) == sed.y) {
+                            dogStay.add(i);
+                            sed = null;
+                            System.out.printf("MOVE %d 0 0%n", d.id);
+                        } else {
+                            System.out.printf(Locale.ROOT, "MOVE %d %f %f%n", d.id, sed.x+0.5 - d.x, sed.y+0.5 - d.y);
+                        }
                     }
                 }
             }
-            if(barkTime==0)barkTime=barkCoolDown+1;
+
         }
     }
 
-    static void playShepard(Shepherd sp, int id, List<Shed> sheds, List<Sheep> sheep) {
+    static void playShepard(Player1.Shepherd sp, int id, List<Player1.Shed> sheds, List<Player1.Sheep> sheep) {
         if (sp.shearing != 0) {
-            Sheep s = sheep.get(sp.shearing - 1);
+            Player1.Sheep s = sheep.get(sp.shearing - 1);
             if (s.wool <= 0) {
-                System.out.printf("SHEAR 0 %d %d%n", id, sp.shearing);
+                System.out.printf("MOVE %d 0 0%n", sp.id);
             } else {
-                System.out.printf("SHEAR 1 %d %d%n", id, sp.shearing);
+                System.out.printf("SHEAR %d %d%n", sp.id, sp.shearing);
             }
             return;
         }
-        Shed sed = sheds.stream().filter(s -> s.owner == myId).findFirst().get();
+        Player1.Shed sed = sheds.stream().filter(s -> s.owner == myId).min(Comparator.comparingDouble(s -> dist(s.x, sp.x, s.y, sp.y))).get();
         if (sp.wool > 0) {
             if (sed.x == Math.floor(sp.x) && sed.y == Math.floor(sp.y)) {
-                System.out.printf("TRANSFER_WOOL 1 %d %d%n", id, sp.wool);
+                System.out.printf("TRANSFER_WOOL 1 %d %d%n", sp.id, sp.wool);
             } else {
-                System.out.printf(Locale.ROOT, "MOVE 1 %d %f %f%n", id, sed.x - sp.x, sed.y - sp.y);
+                System.out.printf(Locale.ROOT, "MOVE %d %f %f%n", sp.id, sed.x+0.5 - sp.x, sed.y+0.5 - sp.y);
             }
             return;
         }
         double dist = 1000;
-        Sheep closesSheep = null;
-        for (Sheep s : sheep
+        Player1.Sheep closesSheep = null;
+        for (Player1.Sheep s : sheep
         ) {
             double tmpDist = dist(s.x, sp.x, s.y, sp.y);
             if (tmpDist < dist && s.wool > 0) {
@@ -160,11 +175,11 @@ public class Player2 {
             }
         }
         if (closesSheep == null) {
-            System.out.printf("MOVE 1 %d 0 0", id);
+            System.out.printf("MOVE %d 0 0%n", sp.id);
         } else if (isNearSheep(closesSheep, sp)) {
-            System.out.printf("SHEAR 1 %d %d%n", id, sheep.indexOf(closesSheep) + 1);
+            System.out.printf("SHEAR %d %d%n", sp.id, sheep.indexOf(closesSheep) + 1);
         } else {
-            System.out.printf(Locale.ROOT, "MOVE 1 %d %f %f%n", id, closesSheep.x - sp.x, closesSheep.y - sp.y);
+            System.out.printf(Locale.ROOT, "MOVE %d %f %f%n", sp.id, closesSheep.x - sp.x, closesSheep.y - sp.y);
         }
     }
 
@@ -174,7 +189,7 @@ public class Player2 {
         return sqrt(deltaX * deltaX + deltaY * deltaY);
     }
 
-    static boolean isNearSheep(Sheep sheep, Shepherd shepherd) {
+    static boolean isNearSheep(Player1.Sheep sheep, Player1.Shepherd shepherd) {
         return dist(sheep.x, shepherd.x, sheep.y, shepherd.y) < entityRadius;
     }
 }

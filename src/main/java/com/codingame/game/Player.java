@@ -31,15 +31,14 @@ public class Player extends AbstractMultiplayerPlayer {
             String[] outputs = output.split(" ");
             switch (outputs[0]) {
                 case "MOVE":
-                    actions.add(new MoveAction(this, Integer.parseInt(outputs[2]),
-                        new Vector2(Double.parseDouble(outputs[3]), Double.parseDouble(outputs[4])), Integer.parseInt(outputs[1]) != 1));
+                    actions.add(new MoveAction(this, Integer.parseInt(outputs[1]),
+                        new Vector2(Double.parseDouble(outputs[2]), Double.parseDouble(outputs[3]))));
                     break;
                 case "BARK":
                     actions.add(new BarkAction(this, Integer.parseInt(outputs[1])));
                     break;
                 case "SHEAR":
-                    actions.add(new ShearAction(this, Integer.parseInt(outputs[2]), Integer.parseInt(outputs[3]),
-                        Integer.parseInt(outputs[1]) == 1));
+                    actions.add(new ShearAction(this, Integer.parseInt(outputs[1]), Integer.parseInt(outputs[2])));
                     break;
                 case "TRANSFER_WOOL":
                     actions.add(new TransferWoolAction(this, Integer.parseInt(outputs[2]), Integer.parseInt(outputs[1]) == 1,

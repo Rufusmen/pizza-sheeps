@@ -7,6 +7,7 @@ import com.codingame.game.entity.Shed;
 import com.codingame.gameengine.module.entities.GraphicEntityModule;
 import com.codingame.gameengine.module.entities.Group;
 import com.codingame.gameengine.module.entities.Sprite;
+import com.codingame.gameengine.module.tooltip.TooltipModule;
 import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
@@ -118,5 +119,9 @@ public class Board {
 
     public int getScore(int id) {
         return sheds.stream().filter(s -> s.owner == id).mapToInt(s -> s.wool).sum();
+    }
+
+    public void updateTooltip(TooltipModule tooltips) {
+        sheds.forEach(s -> tooltips.setTooltipText(s.sprite,s.tooltipTxt()));
     }
 }

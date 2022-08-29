@@ -11,7 +11,7 @@ public abstract class Entity {
 
     private static final double TO_RAD = 180.0 / Math.PI;
     private static final double TO_ANG = Math.PI / 180.0;
-
+    public int id;
     protected int owner = 0;
 
     public Vector2 getPosition() {
@@ -20,6 +20,11 @@ public abstract class Entity {
 
     protected Vector2 position;
     private final int radius = 50;
+
+    public Sprite getSprite() {
+        return sprite;
+    }
+
     protected Sprite sprite;
     private int cellSize;
     private int origX;
@@ -29,7 +34,8 @@ public abstract class Entity {
     public Vector2 lastMove = new Vector2(0,0);
 
 
-    public Entity(Vector2 position) {
+    public Entity(int id,Vector2 position) {
+        this.id= id;
         this.position = position;
     }
 
@@ -61,6 +67,8 @@ public abstract class Entity {
 
     protected abstract void setSprite();
 
+    public abstract String tooltipTxt();
+
     public int getOwner() {
         return this.owner;
     }
@@ -68,7 +76,7 @@ public abstract class Entity {
 
     @Override
     public String toString() {
-        return String.format("%.6f %.6f %d", position.getX(), position.getY(),owner);
+        return String.format("%d %.6f %.6f %d",id, position.getX(), position.getY(),owner);
     }
 
 }

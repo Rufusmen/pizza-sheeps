@@ -32,7 +32,7 @@ public class ConstsSettings {
         sheepSpeed3 = 0.3500*sp;
         sameDirectionProbability = 60;
         dangerRadius = 2;
-        barkRadius = random.nextDouble()*2+1.0;
+        barkRadius = random.nextDouble()*2+2.0;
         entityRadius = 0.5;
         barkCoolDown = 5+random.nextInt(10);
         shepardMaxWool = 10+random.nextInt(10);
@@ -40,15 +40,15 @@ public class ConstsSettings {
         mapSizeX = 10;
         mapSizeY = 15;
         calmCoolDown = 5+random.nextInt(6);
-        turns = 175+random.nextInt(50);
+        turns = 250;
         maxSheep = 75;
-        minSheep = 25;
+        minSheep = 40;
     }
 
     @Override
     public String toString() {
-        return String.format("%d %d %.6f %.6f %.6f %.6f %.6f %.6f %.6f %d %.6f %d %d", initialSheepWool, shepardMaxWool,
+        return String.format("%d %d %.6f %.6f %.6f %.6f %.6f %.6f %.6f %d %.6f %d", initialSheepWool, shepardMaxWool,
             entityRadius, sheepSpeed1, sheepSpeed2, sheepSpeed3, shepardSpeed, dogSpeed, dangerRadius, barkCoolDown, barkRadius,
-            calmCoolDown, turns);
+            calmCoolDown);
     }
 }
