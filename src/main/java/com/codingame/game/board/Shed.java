@@ -1,11 +1,11 @@
-package com.codingame.game.entity;
+package com.codingame.game.board;
 
-import com.codingame.game.Cell;
-import com.codingame.game.CellType;
-
+/**
+ * Representation of board cell containing a shed.
+ */
 public class Shed extends Cell {
 
-    private boolean initiallyOwned;
+    private final boolean initiallyOwned;
     public int wool;
     public int dogs1;
     public int dogs2;
@@ -40,14 +40,14 @@ public class Shed extends Cell {
                 owner = 0;
             } else if (dogs2 > dogs1) {
                 owner = 1;
-            } else if(dogs2 == 0){
+            } else if (dogs2 == 0) {
                 owner = -1;
             }
         }
     }
 
     public String tooltipTxt() {
-        return String.format("cell: (%d,%d)%n wool: %d%n owner: %d",x,y,wool,owner);
+        return String.format("cell: (%d,%d)%n wool: %d%n owner: %d", x, y, wool, owner);
     }
 
     @Override

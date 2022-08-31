@@ -2,6 +2,9 @@ package com.codingame.game.actions;
 
 import com.codingame.game.Player;
 
+/**
+ * SHEAR action object.
+ */
 public class ShearAction extends AbstractAction{
 
     public int sheepId;

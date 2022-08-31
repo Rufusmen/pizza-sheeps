@@ -1,9 +1,9 @@
-package com.codingame.game;
+package com.codingame.game.board;
 
-import static com.codingame.game.Util.convert;
+import static com.codingame.game.util.Util.convert;
 
 import com.codingame.game.entity.Dog;
-import com.codingame.game.entity.Shed;
+import com.codingame.game.util.Vector2;
 import com.codingame.gameengine.module.entities.GraphicEntityModule;
 import com.codingame.gameengine.module.entities.Group;
 import com.codingame.gameengine.module.entities.Sprite;
@@ -24,16 +24,16 @@ public class Board {
 
     private List<Shed> sheds;
 
-    private Group entity;
-
-    private int origX;
-    private int origY;
-    private int cellSize;
-
     public int getShedSize() {
         return sheds.size();
     }
 
+    /**
+     * Generates map.
+     * @param sizeX x size of map
+     * @param sizeY y size of map
+     * @param random random number generator
+     */
     public void init(int sizeX, int sizeY, Random random) {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
@@ -57,11 +57,14 @@ public class Board {
         sheds.forEach(s -> cells[s.x][s.y] = s);
     }
 
-    public void drawInit(int origX, int origY, int cellSize, int lineColor) {
-        this.origX = origX;
-        this.origY = origY;
-        this.cellSize = cellSize;
-        entity = graphicEntityModule.createGroup();
+    /**
+     * Initializes static graphical entities.
+     * @param origX x pixel offset
+     * @param origY y pixel offset
+     * @param cellSize size off one cell in pixels
+     */
+    public void drawInit(int origX, int origY, int cellSize) {
+        Group entity = graphicEntityModule.createGroup();
 
         for (int i = 0; i < sizeX; ++i) {
             for (int j = 0; j < sizeY; ++j) {
@@ -82,16 +85,10 @@ public class Board {
         }
     }
 
-    public void draw() {
-        for (int i = 0; i < sizeX; ++i) {
-            for (int j = 0; j < sizeY; ++j) {
-                if (cells[i][j].type == CellType.SHED) {
-                    //cells[i][j].sprite.setFillColor(0x00ffff);
-                }
-            }
-        }
-    }
-
+    /**
+     * @param v unit position
+     * @return a shed that unit is on or null if unit is in empty cell
+     */
     public Shed getShed(Vector2 v) {
         if (cells[(int) v.getX()][(int) v.getY()] instanceof Shed) {
             return (Shed) cells[(int) v.getX()][(int) v.getY()];
@@ -99,6 +96,10 @@ public class Board {
         return null;
     }
 
+    /**
+     * Updates sheds ownership using dogs' positions.
+     * @param dogs list of dogs
+     */
     public void updateSheds(List<Dog> dogs){
         sheds.forEach(Shed::clearDogs);
         dogs.forEach(dog ->{
@@ -110,17 +111,27 @@ public class Board {
         sheds.forEach(Shed::updateOwnership);
     }
 
+    /**
+     * @return list of inputs for players with sheds information
+     */
     public List<String> getShedsInput() {
         List<String> res = new ArrayList<>();
-        //res.add(Integer.toString(sheds.size()));
         sheds.forEach(s -> res.add(s.toString()));
         return res;
     }
 
+    /**
+     * @param id player id
+     * @return score for player with given id
+     */
     public int getScore(int id) {
         return sheds.stream().filter(s -> s.owner == id).mapToInt(s -> s.wool).sum();
     }
 
+    /**
+     * Updates sheds tooltips.
+     * @param tooltips Tooltip object for update
+     */
     public void updateTooltip(TooltipModule tooltips) {
         sheds.forEach(s -> tooltips.setTooltipText(s.sprite,s.tooltipTxt()));
     }

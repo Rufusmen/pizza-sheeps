@@ -5,11 +5,13 @@ import com.codingame.game.actions.BarkAction;
 import com.codingame.game.actions.MoveAction;
 import com.codingame.game.actions.ShearAction;
 import com.codingame.game.actions.TransferWoolAction;
+import com.codingame.game.board.Board;
 import com.codingame.game.entity.Dog;
 import com.codingame.game.entity.Entity;
-import com.codingame.game.entity.Shed;
+import com.codingame.game.board.Shed;
 import com.codingame.game.entity.Sheep;
 import com.codingame.game.entity.Shepherd;
+import com.codingame.game.util.Vector2;
 import com.codingame.gameengine.module.entities.GraphicEntityModule;
 import com.codingame.gameengine.module.entities.Group;
 import com.codingame.gameengine.module.tooltip.TooltipModule;
@@ -19,6 +21,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+
+/**
+ * Main class containing game state and game logic
+ */
 public class GameState {
 
     @Inject
@@ -26,34 +32,47 @@ public class GameState {
 
     @Inject
     private GraphicEntityModule graphicEntityModule;
-    private List<Sheep> sheeps = new ArrayList<>();
-    private List<Dog> dogs = new ArrayList<>();
-    private List<Shepherd> shepherds = new ArrayList<>();
+    private final List<Sheep> sheeps = new ArrayList<>();
+    private final List<Dog> dogs = new ArrayList<>();
+    private final List<Shepherd> shepherds = new ArrayList<>();
 
     private Group entitiesGroup;
     private Random random;
     private ConstsSettings constsSettings;
 
-    private int id;
+    private final List<Integer> turnSheared = new ArrayList<>();
+
+    private int idGenSeq;
 
 
-    public void drawInit(int i, int i1, int bigCellSize, int i2, int i3) {
-        board.drawInit(i, i1, bigCellSize, i2);
+    /**
+     * Initializes all graphical entities
+     * @param orgX x pixel offset
+     * @param orgY y pixel offset
+     * @param cellSize size off one cell in pixels
+     */
+    public void drawInit(int orgX, int orgY, int cellSize) {
+        board.drawInit(orgX, orgY, cellSize);
         entitiesGroup = graphicEntityModule.createGroup().setZIndex(1);
         sheeps.forEach(s -> entitiesGroup.add(
-            s.drawInit(graphicEntityModule.createSprite(), i, i1, bigCellSize, constsSettings.mapSizeX, constsSettings.mapSizeY)));
+            s.drawInit(graphicEntityModule.createSprite(), orgX, orgY, cellSize, constsSettings.mapSizeX, constsSettings.mapSizeY)));
         dogs.forEach(e -> entitiesGroup.add(
-            e.drawInit(graphicEntityModule.createSprite(), i, i1, bigCellSize, constsSettings.mapSizeX, constsSettings.mapSizeY)));
+            e.drawInit(graphicEntityModule.createSprite(), orgX, orgY, cellSize, constsSettings.mapSizeX, constsSettings.mapSizeY)));
         shepherds.forEach(
             e -> entitiesGroup.add(
-                e.drawInit(graphicEntityModule.createSprite(), i, i1, bigCellSize, constsSettings.mapSizeX, constsSettings.mapSizeY)));
+                e.drawInit(graphicEntityModule.createSprite(), orgX, orgY, cellSize, constsSettings.mapSizeX, constsSettings.mapSizeY)));
         sheeps.forEach(Entity::draw);
         dogs.forEach(Entity::draw);
         shepherds.forEach(Entity::draw);
     }
 
+    /**
+     * Generates initial world state with units.
+     * @param random random number generator
+     * @return number of game turns.
+     */
     public int init(Random random) {
-        id = 1;
+        idGenSeq = 1;
         this.random = random;
         constsSettings = new ConstsSettings(random);
         board.init(constsSettings.mapSizeX, constsSettings.mapSizeY, random);
@@ -62,18 +81,22 @@ public class GameState {
         int dogCnt = random.nextInt(3) + 1;
         while (shepardCnt-- > 0) {
             double x = random.nextDouble() * 9;
-            shepherds.add(new Shepherd(++id, new Vector2(x, 1), 0));
-            shepherds.add(new Shepherd(++id, new Vector2(x, 13), 1));
+            shepherds.add(new Shepherd(++idGenSeq, new Vector2(x, 1), 0));
+            shepherds.add(new Shepherd(++idGenSeq, new Vector2(x, 13), 1));
         }
         while (dogCnt-- > 0) {
             double x = random.nextDouble() * 9;
-            dogs.add(new Dog(++id, new Vector2(x, 2), 0));
-            dogs.add(new Dog(++id, new Vector2(x, 12), 1));
+            dogs.add(new Dog(++idGenSeq, new Vector2(x, 2), 0));
+            dogs.add(new Dog(++idGenSeq, new Vector2(x, 12), 1));
         }
         return constsSettings.turns;
     }
 
-    public int pawnsNo() {
+    /**
+     *
+     * @return amount of single player's units
+     */
+    public int playerPawnsAmount() {
         return (shepherds.size() + dogs.size()) / 2;
 
     }
@@ -82,22 +105,30 @@ public class GameState {
         int sheepNo = random.nextInt(constsSettings.maxSheep - constsSettings.minSheep) + constsSettings.minSheep;
         while (sheepNo-- > 0) {
             sheeps.add(
-                new Sheep(++id, new Vector2(random.nextDouble() * constsSettings.mapSizeX, random.nextDouble() * constsSettings.mapSizeY),
+                new Sheep(++idGenSeq, new Vector2(random.nextDouble() * constsSettings.mapSizeX, random.nextDouble() * constsSettings.mapSizeY),
                     constsSettings.initialSheepWool));
         }
     }
 
+    /**
+     * Updates state of all graphical entities.
+     */
     public void draw() {
-        board.draw();
         sheeps.forEach(Sheep::draw);
         dogs.forEach(Entity::draw);
         shepherds.forEach(Entity::draw);
     }
 
-    public String getConsts() {
+    /**
+     * @return constants for game as player's input.
+     */
+    public String getConstsString() {
         return constsSettings.toString();
     }
 
+    /**
+     * @return input line for player with all units counts.
+     */
     public String getCounts() {
         List<String> res = new ArrayList<>();
         res.add(Integer.toString(sheeps.size()));
@@ -108,26 +139,53 @@ public class GameState {
         return String.join(" ", res);
     }
 
+    /**
+     * @return list of sheep information for player's input
+     */
     public List<String> getSheepsInput() {
         List<String> res = new ArrayList<>();
-        //res.add(Integer.toString(sheeps.size()));
         sheeps.forEach(s -> res.add(s.toString()));
         return res;
     }
 
+    /**
+     * @return list of dogs information for player's input
+     */
     public List<String> getDogsInput() {
         return dogs.stream().map(Dog::toString).collect(Collectors.toList());
     }
 
+    /**
+     * @return list of shepherds information for player's input
+     */
     public List<String> getShedsInput() {
         return board.getShedsInput();
     }
 
+    /**
+     * @return list of sheds information for player's input
+     */
     public List<String> getShepherdsInput(Player p) {
         return shepherds.stream().map(Shepherd::toStringFull).collect(Collectors.toList());
     }
 
+    /**
+     * Resolves all players' actions, starting with MOVE actions.
+     * @param actions list of players' actions
+     */
     public void resolveActions(List<AbstractAction> actions) {
+        dogs.forEach(d->d.used=false);
+        shepherds.forEach(s->s.used=false);
+        turnSheared.clear();
+        actions.sort((a1,a2) -> {
+            if(a1 instanceof MoveAction){
+                if(a2 instanceof MoveAction){
+                    return 0;
+                }
+                return -1;
+            }
+            return 1;
+        });
         actions.forEach(a -> {
             if (a instanceof BarkAction) {
                 bark((BarkAction) a);
@@ -141,6 +199,9 @@ public class GameState {
         });
     }
 
+    /**
+     * Simulates sheep's movement and updates sheds ownership.
+     */
     public void onTurnEnd() {
         dogs.forEach(Dog::onTurnEnd);
         board.updateSheds(dogs);
@@ -213,7 +274,8 @@ public class GameState {
 
     private void bark(BarkAction action) {
         Dog dog = dogs.stream().filter(d -> d.id == action.id).findFirst().orElse(null);
-        if (dog != null && dog.getOwner() == action.player.getIndex() && dog.barkCoolDown <= 0) {
+        if (dog != null && !dog.used && dog.getOwner() == action.player.getIndex() && dog.barkCoolDown <= 0) {
+            dog.used=true;
             sheeps.forEach(s -> s.onBark(dog.getPosition(), constsSettings.barkRadius));
             dog.barkCoolDown = constsSettings.barkCoolDown;
         }
@@ -221,24 +283,31 @@ public class GameState {
 
     private void move(MoveAction action) {
         Dog dog = dogs.stream().filter(d -> d.id == action.id).findFirst().orElse(null);
-        if (dog != null && dog.getOwner() == action.player.getIndex()) {
+        if (dog != null && !dog.used &dog.getOwner() == action.player.getIndex()) {
+            dog.used=true;
             dog.move(action.direction, constsSettings.dogSpeed);
         }
         Shepherd shepherd = shepherds.stream().filter(s -> s.id == action.id).findFirst().orElse(null);
-        if (shepherd != null && shepherd.getOwner() == action.player.getIndex()) {
+        if (shepherd != null && !shepherd.used&& shepherd.getOwner() == action.player.getIndex()) {
             if(shepherd.shearing!=0){
                 sheeps.get(shepherd.shearing-1).shearedBy = 0;
                 shepherd.shearing=0;
             }
+            shepherd.used=true;
             shepherd.move(action.direction, constsSettings.shepardSpeed);
         }
     }
 
     private void shear(ShearAction action) {
-        Shepherd shepherd = shepherds.stream().filter(s -> s.id == action.id).findFirst().orElse(null);
-        if (shepherd == null || shepherd.getOwner() != action.player.getIndex()) {
+        if(turnSheared.contains(action.sheepId)){
+            cancelShear(action.sheepId);
             return;
         }
+        Shepherd shepherd = shepherds.stream().filter(s -> s.id == action.id).findFirst().orElse(null);
+        if (shepherd == null || shepherd.used ||shepherd.getOwner() != action.player.getIndex()) {
+            return;
+        }
+        shepherd.used=true;
         Sheep sheep = sheeps.get(action.sheepId - 1);
         if (sheep.shearedBy == 0 && sheep.getPosition().inRadius(shepherd.getPosition(), constsSettings.entityRadius * 2.0)) {
             sheep.shearedBy = shepherd.id;
@@ -247,10 +316,25 @@ public class GameState {
 
     }
 
+    private void cancelShear(int sheepId){
+        Sheep sheep =sheeps.stream().filter(s-> s.id==sheepId).findAny().orElse(null);
+        if(sheep!= null && sheep.shearedBy!=0){
+            Shepherd sp = shepherds.stream().filter(shepherd -> shepherd.id == sheep.shearedBy).findAny().get();
+            sp.shearing=0;
+            sheep.shearedBy=0;
+
+        }
+    }
+
     private void transfer(TransferWoolAction action) {
         Shepherd shepherd = shepherds.stream().filter(s -> s.id == action.id).findFirst().orElse(null);
-        if (shepherd == null || shepherd.getOwner() != action.player.getIndex()) {
+        if (shepherd == null || shepherd.used ||shepherd.getOwner() != action.player.getIndex()) {
             return;
+        }
+        shepherd.used=true;
+        if(shepherd.shearing!=0){
+            sheeps.get(shepherd.shearing-1).shearedBy = 0;
+            shepherd.shearing=0;
         }
         Shed shed = board.getShed(shepherd.getPosition());
         if (shed == null) {
@@ -267,10 +351,18 @@ public class GameState {
         }
     }
 
+    /**
+     * @param id player id
+     * @return score for player with given id
+     */
     public int getScore(int id) {
         return board.getScore(id);
     }
 
+    /**
+     * Updates tooltips.
+     * @param tooltips Tooltip object for update
+     */
     public void updateTooltip(TooltipModule tooltips) {
         //sheeps.forEach(s -> tooltips.setTooltipText(s.getSprite(), s.tooltipTxt()));
         dogs.forEach(d -> tooltips.setTooltipText(d.getSprite(), d.tooltipTxt()));

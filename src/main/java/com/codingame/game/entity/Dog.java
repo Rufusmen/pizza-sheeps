@@ -1,7 +1,11 @@
 package com.codingame.game.entity;
 
-import com.codingame.game.Vector2;
+import com.codingame.game.util.Vector2;
 
+
+/**
+ * Representation of dog unit.
+ */
 public class Dog extends Entity {
 
     public int barkCoolDown;

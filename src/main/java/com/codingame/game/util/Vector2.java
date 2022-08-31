@@ -1,4 +1,4 @@
-package com.codingame.game;
+package com.codingame.game.util;
 
 import static java.lang.Math.sqrt;
 

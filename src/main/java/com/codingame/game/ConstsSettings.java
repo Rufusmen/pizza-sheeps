@@ -2,12 +2,25 @@ package com.codingame.game;
 
 import java.util.Random;
 
+/**
+ * Class containing all consts for one game.
+ */
 public class ConstsSettings {
 
     public double dogSpeed;
     public double shepardSpeed;
+    /**
+     * Default sheep speed.
+     */
     public double sheepSpeed1;
+
+    /**
+     * Speed of sheep that's going away from player units .
+     */
     public double sheepSpeed2;
+    /**
+     * Speed of scared sheep.
+     */
     public double sheepSpeed3;
     public int sameDirectionProbability;
     public double dangerRadius;

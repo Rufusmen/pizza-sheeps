@@ -1,12 +1,13 @@
 package com.codingame.game.entity;
 
-import static com.codingame.game.Util.convert;
+import static com.codingame.game.util.Util.convert;
 
-import com.codingame.game.Vector2;
-import com.codingame.gameengine.module.entities.Circle;
-import com.codingame.gameengine.module.entities.Mask;
+import com.codingame.game.util.Vector2;
 import com.codingame.gameengine.module.entities.Sprite;
 
+/**
+ * Main class of movable unit.
+ */
 public abstract class Entity {
 
     private static final double TO_RAD = 180.0 / Math.PI;
@@ -19,7 +20,6 @@ public abstract class Entity {
     }
 
     protected Vector2 position;
-    private final int radius = 50;
 
     public Sprite getSprite() {
         return sprite;
@@ -32,6 +32,7 @@ public abstract class Entity {
     private double maxMoveX;
     private double maxMoveY;
     public Vector2 lastMove = new Vector2(0,0);
+    public boolean used = false;
 
 
     public Entity(int id,Vector2 position) {
@@ -39,6 +40,11 @@ public abstract class Entity {
         this.position = position;
     }
 
+    /**
+     * Changes position of the unit by the given vector
+     * @param direction direction vector
+     * @param speed length of vector
+     */
     public void move(Vector2 direction, double speed) {
         direction.normalize();
         position.add(speed * direction.getX(), speed * direction.getY());
@@ -58,6 +64,9 @@ public abstract class Entity {
         return this.sprite;
     }
 
+    /**
+     * Updates sprite position and rotation
+     */
     protected void updatePosition() {
         sprite.setY(convert(origX, cellSize, position.getX())).setX(convert(origY, cellSize, position.getY()));
         sprite.setRotation(Math.atan2(lastMove.getX(), lastMove.getY())+Math.PI/2);

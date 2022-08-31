@@ -2,17 +2,26 @@ package com.codingame.game;
 
 import com.codingame.game.actions.AbstractAction;
 import com.codingame.game.actions.BarkAction;
+import com.codingame.game.actions.InvalidAction;
 import com.codingame.game.actions.MoveAction;
 import com.codingame.game.actions.ShearAction;
 import com.codingame.game.actions.TransferWoolAction;
+import com.codingame.game.util.Vector2;
 import com.codingame.gameengine.core.AbstractMultiplayerPlayer;
 import com.codingame.gameengine.module.entities.Group;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Player object.
+ */
 public class Player extends AbstractMultiplayerPlayer {
 
     public Group hud;
+
+    /**
+     * Number of pawns under player control.
+     */
     public int pawns;
 
     @Override
@@ -24,6 +33,11 @@ public class Player extends AbstractMultiplayerPlayer {
         this.pawns = pawns;
     }
 
+    /**
+     * Parses player outputs to action objects.
+     *
+     * @return list of player's actions
+     */
     public List<AbstractAction> getActions() throws TimeoutException, NumberFormatException, InvalidAction {
         List<AbstractAction> actions = new ArrayList<>();
         for (String output : getOutputs()

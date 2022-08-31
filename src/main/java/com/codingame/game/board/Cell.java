@@ -1,8 +1,10 @@
-package com.codingame.game;
+package com.codingame.game.board;
 
-import com.codingame.gameengine.module.entities.Rectangle;
 import com.codingame.gameengine.module.entities.Sprite;
 
+/**
+ * Representation of single cell of the board
+ */
 public class Cell {
 
     public int owner;

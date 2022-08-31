@@ -2,6 +2,9 @@ package com.codingame.game.actions;
 
 import com.codingame.game.Player;
 
+/**
+ * TRANSFER_WOOL action object.
+ */
 public class TransferWoolAction extends AbstractAction {
 
     public boolean isDeposit;

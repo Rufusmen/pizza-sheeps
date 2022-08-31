@@ -1,7 +1,10 @@
 package com.codingame.game.entity;
 
-import com.codingame.game.Vector2;
+import com.codingame.game.util.Vector2;
 
+/**
+ * Representation of Shepherd unit.
+ */
 public class Shepherd extends Entity {
 
     public int shearing = 0;

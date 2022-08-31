@@ -1,6 +1,7 @@
 package com.codingame.game;
 
 import com.codingame.game.actions.AbstractAction;
+import com.codingame.game.actions.InvalidAction;
 import com.codingame.gameengine.core.AbstractPlayer.TimeoutException;
 import com.codingame.gameengine.core.AbstractReferee;
 import com.codingame.gameengine.core.GameManager;
@@ -19,6 +20,9 @@ import java.util.Map;
 import java.util.Random;
 
 
+/**
+ * Main class of the game.
+ */
 public class Referee extends AbstractReferee {
 
     @Inject
@@ -54,9 +58,9 @@ public class Referee extends AbstractReferee {
 
     private void sendInitInputs() {
         for (Player p : gameManager.getActivePlayers()) {
-            p.setPawns(state.pawnsNo());
+            p.setPawns(state.playerPawnsAmount());
             p.sendInputLine(String.format("%d", p.getIndex()));
-            p.sendInputLine(state.getConsts());
+            p.sendInputLine(state.getConstsString());
             p.sendInputLine(state.getCounts());
         }
     }
@@ -74,7 +78,7 @@ public class Referee extends AbstractReferee {
 
     private void drawGrids() {
         int cellSize = 100;
-        state.drawInit(40, 10, cellSize, 0, 0xf9b700);
+        state.drawInit(40, 10, cellSize);
     }
 
     private void drawHud() {
@@ -147,7 +151,6 @@ public class Referee extends AbstractReferee {
         sendPlayerInputs();
 
         // Read inputs
-        state.draw();
         List<AbstractAction> actions = new ArrayList<>();
         for (Player player : gameManager.getActivePlayers()) {
             try {
@@ -170,6 +173,7 @@ public class Referee extends AbstractReferee {
         }
         state.resolveActions(actions);
         state.onTurnEnd();
+        state.draw();
         state.updateTooltip(tooltips);
         updateScore();
     }

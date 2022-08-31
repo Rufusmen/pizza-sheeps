@@ -2,6 +2,9 @@ package com.codingame.game.actions;
 
 import com.codingame.game.Player;
 
+/**
+ * Base action object.
+ */
 public abstract class AbstractAction {
 
     public final int id;
