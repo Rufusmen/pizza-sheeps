@@ -1,21 +1,6 @@
 read myId:int
-read initialSheepWool:int
-read shepardMaxWool:int
-read entityRadius:float
-read sheepSpeed1:float
-read sheepSpeed2:float
-read sheepSpeed3:float
-read shepardSpeed:float
-read dogSpeed:float
-read dangerRadius:float
-read barkCoolDown:int
-read barkRadius:float
-read calmCoolDown:int
-read sheepCnt:int
-read shepherdsCnt:int
-read dogsCnt:int
-read shedsCnt:int
-read myUnitsCnt:int
+read initialSheepWool:int shepardMaxWool:int entityRadius:float sheepSpeed1:float sheepSpeed2:float sheepSpeed3:float shepardSpeed:float dogSpeed:float dangerRadius:float barkCoolDown:int barkRadius:float calmCoolDown:int
+read sheepCnt:int shepherdsCnt:int dogsCnt:int shedsCnt:int myUnitsCnt:int
 gameloop
 loop sheepCnt read id:int x:float y:float wool:int isShared:int
 loop shepherdsCnt read id:int x:float y:float wool:int shearing:int owner:int

@@ -124,7 +124,29 @@
           initially assigned sheds). If both players have same number of dogs in shed's cell,
           ownership won't change. If there is no dogs in cell shed becomes unowned.
         </p>
+        <div class="statement-section statement-expertrules">
+          <h1>
+            <span class="icon icon-expertrules">&nbsp;</span>
+            <span>Expert Rules</span>
+          </h1>
 
+          <div class="statement-expert-rules-content">
+            The source code can be found here: <a target="_blank"
+                                                  href="https://github.com/Rufusmen/pizza-sheeps">github</a>.
+            <p>
+              Movement of sheep is not fully deterministic. Sheep are trying to:
+            </p>
+            <ul style="padding-top: 0;">
+              <li> - group up to herds</li>
+              <li> - move in same direction as other sheep close by</li>
+              <li> - keep a distance from player units</li>
+            </ul>
+            <br />
+            <p>
+              If two shepherd will try to start shearing same sheep in same turn, neither of them will be successful.
+            </p>
+          </div>
+        </div>
           <div style="color: #7cc576;
                     background-color: rgba(124, 197, 118,.1);
                     padding: 2px;">
@@ -234,7 +256,6 @@
                 </li>
                 <li>
                   <action>TRANSFER_WOOL id isDeposit amount</action>
-                  .
                 </li>
               </ul>
             </div>
@@ -281,29 +302,7 @@
           </div>
         </div>
 
-        <div class="statement-section statement-expertrules">
-          <h1>
-            <span class="icon icon-expertrules">&nbsp;</span>
-            <span>Expert Rules</span>
-          </h1>
 
-          <div class="statement-expert-rules-content">
-            The source code can be found here: <a target="_blank"
-                                                  href="https://github.com/Rufusmen/pizza-sheeps">github</a>.
-              <p>
-                  Movement of sheep is not fully deterministic. Sheep are trying to:
-              </p>
-              <ul style="padding-top: 0;">
-                  <li> - group up to herds</li>
-                  <li> - move in same direction as other sheep close by</li>
-                  <li> - keep a distance from player units</li>
-              </ul>
-            <br />
-            <p>
-              If two shepherd will try to start shearing same sheep in same turn, neither of them will be successful.
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   </div></div>
